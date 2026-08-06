@@ -217,6 +217,20 @@ if [[ "$USE_LOCAL" == "false" ]]; then
             ;;
     esac
 
+    # The compose files bind-mount this as the proxy's config.toml. If it is
+    # missing, docker creates a directory in its place and `up` dies with an
+    # opaque rootfs mount error, so check here instead.
+    if [[ "$CHAIN" == "local" ]]; then
+        PROXY_CFG="extension_proxy.docker.toml"
+    else
+        PROXY_CFG="extension_proxy.$CHAIN.docker.toml"
+    fi
+    if [[ -d "$PROJECT_DIR/config/proxy/$PROXY_CFG" ]]; then
+        die "config/proxy/$PROXY_CFG is a directory — docker created it on an earlier run when the config was missing.\n  rm -rf config/proxy/$PROXY_CFG && cp config/proxy/$PROXY_CFG.example config/proxy/$PROXY_CFG"
+    elif [[ ! -f "$PROJECT_DIR/config/proxy/$PROXY_CFG" ]]; then
+        die "config/proxy/$PROXY_CFG not found (it is gitignored — a fresh clone only has the .example).\n  cp config/proxy/$PROXY_CFG.example config/proxy/$PROXY_CFG   # then fill in the [db] credentials"
+    fi
+
     docker compose "${COMPOSE_FILES[@]}" up -d --build || die "docker compose up failed"
 
     # Wait for proxy to be ready

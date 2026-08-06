@@ -12,6 +12,7 @@
 #   LOCAL_MODE          — skip attestation (default: true)
 #   WAIT_TIMEOUT        — service wait timeout in seconds (default: 120)
 #   EXTENSION_OWNER_KEY — private key override for AddTeeVersion (optional)
+#   REGISTER_TEE_COMMAND — register-tee step letters (default: rRap)
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -144,6 +145,8 @@ export SIMULATED_TEE="${SIMULATED_TEE:-true}"
 log "Simulated TEE: $SIMULATED_TEE"
 
 # --- Step 3: Register TEE on-chain ---
+# rRap, not the default rap: capital R issues the attestation challenge as its
+# own step, so re-runs don't revert with Verification.ChallengeExpired.
 step 3 "Register TEE machine"
 go run ./cmd/register-tee \
     -a "$ADDRESSES_FILE" \
@@ -152,6 +155,7 @@ go run ./cmd/register-tee \
     -h "${EXT_PROXY_HOST_URL:-$EXT_PROXY_URL}" \
     -ep "$NORMAL_PROXY_URL" \
     -state "$PROJECT_DIR/config/register-tee.state" \
+    -command "${REGISTER_TEE_COMMAND:-rRap}" \
     || die "Register TEE failed"
 
 echo ""

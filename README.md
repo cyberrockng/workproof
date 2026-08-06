@@ -289,7 +289,7 @@ cd tools && go run ./cmd/register-tee \
   -a /path/to/deployed-addresses.json \
   -p http://localhost:6674 \
   -ep http://localhost:6662 \
-  -l
+  -command rRap
 ```
 
 ### Docker Compose details

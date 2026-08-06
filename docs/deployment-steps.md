@@ -188,22 +188,10 @@ If `extensionId` is wrong, ask the VM operator to restart the container with the
 
 ## 8. Register the TEE machine
 
-> [!WARNING]
-> Before running, ensure `scripts/post-build.sh` invokes `register-tee` with `-command rRap` (not the default `rap`):
+> [!NOTE]
+> `scripts/post-build.sh` already passes `-command rRap` (the tool's own default is `rap`). Override with `REGISTER_TEE_COMMAND` if you need to run individual steps.
 >
-> ```bash
-> go run ./cmd/register-tee \
->     -a "$ADDRESSES_FILE" \
->     -c "$CHAIN_URL" \
->     -p "$EXT_PROXY_URL" \
->     -h "${EXT_PROXY_HOST_URL:-$EXT_PROXY_URL}" \
->     -ep "$NORMAL_PROXY_URL" \
->     -state "$PROJECT_DIR/config/register-tee.state" \
->     -command rRap \
->     || die "Register TEE failed"
-> ```
->
-> Step `a` (availability check) needs a one-time **challenge** — a random number from the contract that the TEE signs to prove it's alive. By default only `r` issues it, but `r` skips itself once the TEE is registered on-chain. So re-runs (image changes, diamond cuts, retries) revert with `Verification.ChallengeExpired`. Capital `R` issues the challenge directly — decoupled from `r` — so re-runs work.
+> Step `a` (availability check) needs a one-time **challenge** — a random number from the contract that the TEE signs to prove it's alive. Lowercase `r` only issues one while pre-registering, and it skips itself once the TEE is registered on-chain, so re-runs (image changes, diamond cuts, retries) revert with `Verification.ChallengeExpired`. Capital `R` issues the challenge directly — decoupled from `r` — so re-runs work.
 
 Run:
 

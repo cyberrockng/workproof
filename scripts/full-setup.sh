@@ -11,6 +11,7 @@
 # Flags:
 #   --chain <name>   local | coston | coston2 (default: local)
 #   --local          run TEE + proxy as background Go processes instead of Docker
+#   --tunnel         also start the shared cloudflared tunnel (project "tunnel")
 #   --test           run scripts/test.sh after setup
 #
 # Prerequisites:
@@ -29,11 +30,13 @@ die()  { echo -e "${RED}[full-setup] ERROR:${NC} $*" >&2; exit 1; }
 
 RUN_TESTS=false
 USE_LOCAL=false
+USE_TUNNEL=false
 CHAIN=""
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --test) RUN_TESTS=true; shift ;;
         --local) USE_LOCAL=true; shift ;;
+        --tunnel) USE_TUNNEL=true; shift ;;
         --chain) [[ $# -ge 2 ]] || die "--chain requires a value (local|coston|coston2)"
                  CHAIN="$2"; shift 2 ;;
         --chain=*) CHAIN="${1#--chain=}"; shift ;;
@@ -124,6 +127,7 @@ echo -e "${CYAN}║  Phase 2: Start services             ║${NC}"
 echo -e "${CYAN}╚══════════════════════════════════════╝${NC}"
 START_ARGS=(--chain "$CHAIN")
 [[ "$USE_LOCAL" == "true" ]] && START_ARGS+=(--local)
+[[ "$USE_TUNNEL" == "true" ]] && START_ARGS+=(--tunnel)
 "$SCRIPT_DIR/start-services.sh" "${START_ARGS[@]}" || die "Failed to start services"
 
 # --- Phase 3: Post-build (register TEE version + machine) ---

@@ -145,8 +145,8 @@ export SIMULATED_TEE="${SIMULATED_TEE:-true}"
 log "Simulated TEE: $SIMULATED_TEE"
 
 # --- Step 3: Register TEE on-chain ---
-# rRap, not the default rap: capital R issues the attestation challenge as its
-# own step, so re-runs don't revert with Verification.ChallengeExpired.
+# rRap, not the default rap: capital R issues the challenge as its own step, so
+# re-runs don't revert with Verification.ChallengeExpired.
 step 3 "Register TEE machine"
 go run ./cmd/register-tee \
     -a "$ADDRESSES_FILE" \

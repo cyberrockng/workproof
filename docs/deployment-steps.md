@@ -188,22 +188,10 @@ If `extensionId` is wrong, ask the VM operator to restart the container with the
 
 ## 8. Register the TEE machine
 
-> [!WARNING]
-> Before running, ensure `scripts/post-build.sh` invokes `register-tee` with `-command rRap` (not the default `rap`):
+> [!NOTE]
+> `scripts/post-build.sh` already passes `-command rRap` (the tool's own default is `rap`). Override with `REGISTER_TEE_COMMAND` if you need to run individual steps.
 >
-> ```bash
-> go run ./cmd/register-tee \
->     -a "$ADDRESSES_FILE" \
->     -c "$CHAIN_URL" \
->     -p "$EXT_PROXY_URL" \
->     -h "${EXT_PROXY_HOST_URL:-$EXT_PROXY_URL}" \
->     -ep "$NORMAL_PROXY_URL" \
->     -state "$PROJECT_DIR/config/register-tee.state" \
->     -command rRap \
->     || die "Register TEE failed"
-> ```
->
-> Step `a` (availability check) needs a one-time **challenge** — a random number from the contract that the TEE signs to prove it's alive. By default only `r` issues it, but `r` skips itself once the TEE is registered on-chain. So re-runs (image changes, diamond cuts, retries) revert with `Verification.ChallengeExpired`. Capital `R` issues the challenge directly — decoupled from `r` — so re-runs work.
+> Step `a` (availability check) needs a one-time **challenge** — a random number from the contract that the TEE signs to prove it's alive. Lowercase `r` only issues one while pre-registering, and it skips itself once the TEE is registered on-chain, so re-runs (image changes, diamond cuts, retries) revert with `Verification.ChallengeExpired`. Capital `R` issues the challenge directly — decoupled from `r` — so re-runs work.
 
 Run:
 
@@ -221,6 +209,58 @@ bash ./scripts/test.sh
 ```
 
 Sends test instructions through the deployed TEE and verifies the round-trip.
+
+---
+
+## Platform traps
+
+Properties of FCC, not of this extension. Each is silent, presents as something
+else, and has cost real redeploys.
+
+### The TEE key is in memory only
+
+Confidential Space has no persistent storage, so **every relaunch mints a new
+`teeId`**. The previous machine stays *active* on-chain with a key nobody holds, and
+`getRandomTeeIds` load-balances across active machines — so instructions are routed
+to a dead node roughly half the time and silently never complete (`/action/result`
+404s, callers report a poll timeout).
+
+```bash
+cd tools && go run ./cmd/query-tee -ext <extensionId> -rpc "$CHAIN_URL"   # via getActiveTeeMachines
+cast send <FlareTeeManager> 'pause(address)' <staleTeeId> --rpc-url "$CHAIN_URL" --private-key "$KEY"
+```
+
+The live `teeId` is `keccak256(pubkey.x ‖ pubkey.y)[12:]` from the proxy's `/info`.
+There is no `unpause` — only `toProduction` with a fresh availability proof — so
+never pause the live one.
+
+### One-shot bindings must be written last
+
+`setExtensionId()` requires the current value to be zero and has no reset. Bound to
+a stale value, the contract must be redeployed. Reads keep working, so it hides
+until someone sends an instruction. Corollary: never run `full-setup.sh` against a
+remote TEE — it chains the post-setup script and binds early.
+
+### The launch policy aborts the workload
+
+Confidential Space rejects any env var outside the image's
+`tee.launch_policy.allow_env_override` label and exits `exit_code=4` before the
+workload starts. Diff the launcher's `Image Labels` against its `Envs:`. The label
+is baked in, so a fix means a new image → new code hash → re-register.
+
+### Deploy by digest, not tag
+
+Attestation pins the code hash registered on-chain, so a rebuild invalidates it.
+Mirror between registries instead of rebuilding:
+
+```bash
+crane copy <src>@sha256:<digest> <dst>@sha256:<digest>
+```
+
+### `SIMULATED_TEE=false` on real hardware
+
+And `CHAIN_ID` must be set — unset leaves `chainID=0` and every signature comes back
+empty (`signature must be 65 bytes, got 0`).
 
 ---
 

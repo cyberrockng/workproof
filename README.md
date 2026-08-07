@@ -289,7 +289,7 @@ cd tools && go run ./cmd/register-tee \
   -a /path/to/deployed-addresses.json \
   -p http://localhost:6674 \
   -ep http://localhost:6662 \
-  -l
+  -command rRap
 ```
 
 ### Docker Compose details
@@ -432,9 +432,13 @@ log_queries = false
 
 The Coston2 contract addresses (`flare_systems_manager`, `relay`, `voter_registry`) are already set correctly in the example files. The `chain_id` is `114` (Coston2).
 
-### 3. Start ngrok
+### 3. Start a tunnel
 
-The extension proxy must be publicly accessible so that data providers can reach it. Start an ngrok tunnel pointing to the proxy's external port (6674):
+The extension proxy must be publicly accessible so that data providers can reach it. Two options — either exposes the proxy's external port (6674):
+
+**Cloudflare tunnel (no account needed, and the scripts drive it for you):** pass `--tunnel` to `start-services.sh` or `full-setup.sh` and it starts `docker-compose.cloudflared.yaml`, reads the generated URL, and writes it into `.env` as `EXT_PROXY_URL` — so you can skip the copy-paste below. See [docs/cloudflared.md](docs/cloudflared.md).
+
+**ngrok:**
 
 ```bash
 ngrok http 6674

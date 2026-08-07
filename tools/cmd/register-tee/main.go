@@ -18,7 +18,7 @@ func main() {
 	hf := flag.String("h", "", "host url to register on-chain (defaults to -p if not set)")
 	epf := flag.String("ep", "http://localhost:6662", "external proxy url (for FTDC)")
 	instructionF := flag.String("i", "", "instructionID")
-	command := flag.String("command", "rap", "command (rap)")
+	command := flag.String("command", "rap", "steps to run: r=pre-register R=request attestation a=availability check p=promote (deployments want rRap)")
 	stateFile := flag.String("state", "../config/register-tee.state", "state file for resume support")
 	resume := flag.Bool("resume", false, "resume from state file (default: start fresh)")
 

@@ -10,10 +10,15 @@
 #
 # Pass --local to stop background Go processes instead.
 #
+# Pass --tunnel to also stop the shared Cloudflare tunnel (compose project
+# "tunnel"), after everything behind it. Without it the tunnel is left running:
+# other extensions reuse the same container, and stopping it rotates their URL.
+#
 # Usage:
 #   ./scripts/stop-services.sh                       # local devnet, docker compose
 #   ./scripts/stop-services.sh --chain coston        # Coston, docker compose
 #   ./scripts/stop-services.sh --local               # background Go processes
+#   ./scripts/stop-services.sh --chain coston2 --tunnel   # also stop the tunnel
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -25,10 +30,12 @@ die()  { echo -e "${RED}[stop-services] ERROR:${NC} $*" >&2; exit 1; }
 
 # --- Parse flags ---
 USE_LOCAL=false
+USE_TUNNEL=false
 CHAIN="${CHAIN:-}"
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --local) USE_LOCAL=true; shift ;;
+        --tunnel) USE_TUNNEL=true; shift ;;
         --chain) [[ $# -ge 2 ]] || die "--chain requires a value (local|coston|coston2)"
                  CHAIN="$2"; shift 2 ;;
         --chain=*) CHAIN="${1#--chain=}"; shift ;;
@@ -65,7 +72,6 @@ if [[ "$USE_LOCAL" == "true" ]]; then
 
     log "Stopping background Go processes..."
     "$E2E" stop-all "$PID_DIR"
-    log "Done."
 else
     # --- Stop Docker Compose services ---
     COMPOSE_FILES=("-f" "$PROJECT_DIR/docker-compose.yaml")
@@ -88,5 +94,24 @@ else
 
     log "Stopping Docker Compose services (chain: $CHAIN)..."
     docker compose "${COMPOSE_FILES[@]}" down
-    log "Done."
 fi
+
+# Stopped last and only with --tunnel: other extensions reuse this container,
+# so tearing it down rotates their URL too.
+CF_COMPOSE="$PROJECT_DIR/docker-compose.cloudflared.yaml"
+if [[ -f "$CF_COMPOSE" ]]; then
+    CF_PROJ=()
+    [[ "$USE_LOCAL" == "true" ]] && CF_PROJ=(-p tunnel-local)
+    if [[ "$USE_TUNNEL" == "true" ]]; then
+        if docker compose "${CF_PROJ[@]}" -f "$CF_COMPOSE" ps -q cloudflared 2>/dev/null | grep -q .; then
+            log "Stopping the shared Cloudflare tunnel (last)..."
+            docker compose "${CF_PROJ[@]}" -f "$CF_COMPOSE" down || log "WARNING: failed to stop cloudflared"
+        else
+            log "No tunnel running — nothing to stop."
+        fi
+    elif docker compose "${CF_PROJ[@]}" -f "$CF_COMPOSE" ps -q cloudflared 2>/dev/null | grep -q .; then
+        log "Leaving the shared Cloudflare tunnel running (pass --tunnel to stop it)."
+    fi
+fi
+
+log "Done."

@@ -53,6 +53,16 @@ else
     log "tee-node       $EXT_NODE (extension == tools)"
 fi
 
+# --- 1b. tee-node must not sit below the platform minimum ---
+# sort -V puts the lower version first. ponytail: misreads a pseudo-version of
+# the floor tag itself; not worth a real semver parser for one comparison.
+TEE_NODE_MIN="v0.0.22"
+if [[ -n "$EXT_NODE" && "$(printf '%s\n%s\n' "$TEE_NODE_MIN" "$EXT_NODE" | sort -V | head -1)" != "$TEE_NODE_MIN" ]]; then
+    echo -e "${RED}  tee-node $EXT_NODE is below the $TEE_NODE_MIN minimum${NC}" >&2
+    echo "    bump the pin in $EXT_GOMOD and $TOOLS_GOMOD" >&2
+    FAILED=1
+fi
+
 # --- 2. go-flare-common must match too (drift here breaks ABI encoding) ---
 EXT_COMMON="$(pin "$EXT_GOMOD" github.com/flare-foundation/go-flare-common)"
 TOOLS_COMMON="$(pin "$TOOLS_GOMOD" github.com/flare-foundation/go-flare-common)"

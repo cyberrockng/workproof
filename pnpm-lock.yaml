@@ -1,0 +1,21 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .: {}
+
+  packages/schema: {}
+
+  packages/test-bundle-sdk:
+    dependencies:
+      '@workproof/schema':
+        specifier: workspace:*
+        version: link:../schema
+
+  relayer: {}
+
+  web: {}

@@ -1,0 +1,18 @@
+{
+  "networkName": "Coston2",
+  "chainId": 114,
+  "sourceCommit": "",
+  "contractAddresses": {},
+  "contractDeploymentTxs": {},
+  "verifiedSourceUrls": {},
+  "resolvedAssetManagerFXRP": "",
+  "resolvedFTestXRP": "",
+  "extensionId": "",
+  "teeId": "",
+  "teePlatform": "",
+  "teeCodeHash": "",
+  "imageDigest": "",
+  "proxyUrl": "",
+  "verifierVersionHash": "",
+  "deployedAt": ""
+}

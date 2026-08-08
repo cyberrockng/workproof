@@ -1,0 +1,11 @@
+{
+  "name": "workproof",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:schema": "pnpm --dir packages/schema test",
+    "test:workspaces": "pnpm --recursive --if-present test"
+  },
+  "packageManager": "pnpm@9.15.9"
+}

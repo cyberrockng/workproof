@@ -1,0 +1,52 @@
+// Generated from packages/schema/fixtures/workproof-fixture-v1.json. Do not edit by hand.
+export const workProofFixture = {
+  "name": "workproof-fixture-v1",
+  "bundle": {
+    "formatVersion": 1,
+    "templateId": "erc165-and-code-size",
+    "templateVersion": "v0.1.0",
+    "targetChainId": 114,
+    "publicSpecHash": "0x1111111111111111111111111111111111111111111111111111111111111111",
+    "vectorCount": 2,
+    "selectionCount": 2,
+    "gasLimitPerCall": 100000,
+    "timeoutMsPerCall": 5000,
+    "maxResponseBytes": 4096,
+    "vectors": [
+      {
+        "id": "supports-erc165",
+        "type": "ERC165_SUPPORTS_INTERFACE",
+        "interfaceId": "0x01ffc9a7",
+        "expected": true
+      },
+      {
+        "id": "runtime-size",
+        "type": "CODE_SIZE_RANGE",
+        "minBytes": 45,
+        "maxBytes": 24576
+      }
+    ]
+  },
+  "verdict": {
+    "schemaVersion": 1,
+    "escrowAddress": "0x1000000000000000000000000000000000000001",
+    "chainId": 114,
+    "jobId": "1",
+    "attempt": 1,
+    "instructionId": "0x2222222222222222222222222222222222222222222222222222222222222222",
+    "specHash": "0x1111111111111111111111111111111111111111111111111111111111111111",
+    "privateBundleHash": "0x3333333333333333333333333333333333333333333333333333333333333333",
+    "artifactAddress": "0x2000000000000000000000000000000000000002",
+    "artifactBlock": "123456",
+    "artifactCodeHash": "0x4444444444444444444444444444444444444444444444444444444444444444",
+    "randomRound": "98765",
+    "randomValueHash": "0x5555555555555555555555555555555555555555555555555555555555555555",
+    "engineVersionHash": "0x6666666666666666666666666666666666666666666666666666666666666666",
+    "outcome": "PASS",
+    "passedCount": 2,
+    "executedCount": 2,
+    "reportHash": "0x7777777777777777777777777777777777777777777777777777777777777777",
+    "issuedAt": 1786147200,
+    "expiresAt": 1786149000
+  }
+} as const;

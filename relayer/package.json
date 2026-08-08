@@ -1,0 +1,10 @@
+{
+  "name": "@workproof/relayer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "relay": "node dist/relay.js",
+    "test": "node --test"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "networkName": "Coston2",
+  "chainId": 114,
+  "rpc": "redacted-until-public-safe",
+  "explorer": "https://coston2-explorer.flare.network",
+  "sourceCommit": "",
+  "contractAddresses": {},
+  "contractDeploymentTxs": {},
+  "verifiedSourceUrls": {},
+  "resolvedAssetManagerFXRP": "",
+  "resolvedFTestXRP": "",
+  "extensionId": "",
+  "teeId": "",
+  "teePlatform": "",
+  "teeCodeHash": "",
+  "imageDigest": "",
+  "proxyUrl": "",
+  "verifierVersionHash": "",
+  "deployedAt": ""
+}

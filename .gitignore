@@ -44,6 +44,10 @@ tools/pkg/contracts/*/*.bin
 # Language implementation build artifacts.
 # package-lock.json is deliberately NOT ignored — it is the reproducibility
 # anchor for `npm ci` in typescript/Dockerfile.
+node_modules/
+packages/*/node_modules/
+relayer/node_modules/
+web/node_modules/
 typescript/node_modules/
 typescript/dist/
 python/__pycache__/

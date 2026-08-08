@@ -1,0 +1,19 @@
+# WorkProof Toolchain Preflight
+
+Date: 2026-08-08 WAT
+Shell: WSL bash
+Repository path: redacted
+
+git version 2.43.0
+Docker version 27.5.1, build 9f9e405
+Docker Compose version v5.4.0
+go version go1.25.1 linux/amd64
+forge Version: 1.7.1
+cast Version: 1.7.1
+jq-1.8.2
+node v24.16.0
+GNU bash, version 5.2.21(1)-release (x86_64-pc-linux-gnu)
+corepack 0.35.0
+corepack pnpm 9.15.9
+
+Note: `pnpm` was not available as a standalone shell command in this WSL session after Corepack activation. Phase 1 commands were run as `corepack pnpm ...` with the pinned version `9.15.9`.

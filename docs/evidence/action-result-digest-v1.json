@@ -1,0 +1,14 @@
+{
+  "protocol": "TEE_ACTION_RESULT",
+  "chainId": 114,
+  "actionResult": {
+    "id": "0x0000000000000000000000000000000000000000000000000000000000001111",
+    "submissionTag": "submit",
+    "status": 1,
+    "dataHex": "0x7b226f7574636f6d65223a2250415353222c22617474656d7074223a317d"
+  },
+  "digest": "0xd333554b98a27804ad3569d96ebe74b539661700d94c4572ccc74d13c297d4ed",
+  "method": "keccak256(abi.encode(bytes32('TEE_ACTION_RESULT'), uint256(chainId), ActionResult.Hash()))",
+  "actionResultHashMethod": "keccak256(keccak256(data) || id || keccak256(submissionTag) || status)",
+  "source": "tee-node v0.0.24 pkg/types/actions.go and go-flare-common signing.Payload"
+}

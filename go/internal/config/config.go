@@ -10,8 +10,8 @@ import (
 const (
 	Version = "0.1.0"
 
-	OPTypeGreeting     = "GREETING"
-	OPCommandSayHello  = "SAY_HELLO"
+	OPTypeGreeting      = "GREETING"
+	OPCommandSayHello   = "SAY_HELLO"
 	OPCommandSayGoodbye = "SAY_GOODBYE"
 
 	TimeoutShutdown = 5 * time.Second

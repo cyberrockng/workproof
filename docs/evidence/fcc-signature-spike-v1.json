@@ -1,0 +1,44 @@
+{
+  "actionResultHashMethod": "keccak256(keccak256(data) || id || keccak256(submissionTag) || status)",
+  "coston2": {
+    "privateKeyTestOnly": "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+    "expectedTeeAddress": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "chainId": 114,
+    "actionResult": {
+      "id": "0x0000000000000000000000000000000000000000000000000000000000001111",
+      "submissionTag": "submit",
+      "status": 1,
+      "dataHex": "0x7b226f7574636f6d65223a2250415353222c22617474656d7074223a317d"
+    },
+    "actionResultHash": "0x44c661155f727f2ed2206c839f94e9d0b0bcc66a425845d2759ec4544a3bdd4a",
+    "payloadHash": "0xd333554b98a27804ad3569d96ebe74b539661700d94c4572ccc74d13c297d4ed",
+    "ethSignedHash": "0x1a03a9c8b9e684a40f7294a8ff7ba8ff3fe338f89048c4eb1dfdbda5b8bc5bed",
+    "signature": "0x42dd2e9b3d17f523d9891abc59d5036a248f155fa426b55549b4b08f5283cf0b1e6218f260da5a279240dc642e47b286b3d89b6fe9d6b3712b7bac69939ca21901",
+    "signatureR": "0x42dd2e9b3d17f523d9891abc59d5036a248f155fa426b55549b4b08f5283cf0b",
+    "signatureS": "0x1e6218f260da5a279240dc642e47b286b3d89b6fe9d6b3712b7bac69939ca219",
+    "signatureV": 28
+  },
+  "crossChainReplayCheck": {
+    "privateKeyTestOnly": "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+    "expectedTeeAddress": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    "chainId": 16,
+    "actionResult": {
+      "id": "0x0000000000000000000000000000000000000000000000000000000000001111",
+      "submissionTag": "submit",
+      "status": 1,
+      "dataHex": "0x7b226f7574636f6d65223a2250415353222c22617474656d7074223a317d"
+    },
+    "actionResultHash": "0x44c661155f727f2ed2206c839f94e9d0b0bcc66a425845d2759ec4544a3bdd4a",
+    "payloadHash": "0x3819829137651ff254e4a733def0dbe65bdb95d15483fabaa4981b37d1d28867",
+    "ethSignedHash": "0xbcfd7693db3f3512cd324a20eaba1c4bdd0d0c37abee8dc66e8390a8260bdd1e",
+    "signature": "0x4b070174d2c8b0de68a3f2e995e19a43e2b6ef410423a15b731feb8e62e49681760c5c2d6f7749d19287f4275c78a899396b77add3de65b95bed3f52dfd7edfd01",
+    "signatureR": "0x4b070174d2c8b0de68a3f2e995e19a43e2b6ef410423a15b731feb8e62e49681",
+    "signatureS": "0x760c5c2d6f7749d19287f4275c78a899396b77add3de65b95bed3f52dfd7edfd",
+    "signatureV": 28
+  },
+  "note": "router.SignResult is an internal tee-node package and cannot be imported cross-module; this reproduces its exact 3-line body using only the same real exported primitives (ActionResult.Hash, signing.Payload.Hash, accounts.TextHash, crypto.Sign), not a reimplementation of any cryptography.",
+  "payloadHashMethod": "keccak256(abi.encode(bytes32('TEE_ACTION_RESULT'), uint256(chainId), actionResultHash))",
+  "protocol": "TEE_ACTION_RESULT",
+  "signingMethod": "secp256k1(crypto.Sign(accounts.TextHash(payloadHash), key)) -- EIP-191 personal-sign wrap over payloadHash",
+  "source": "tee-node v0.0.24 pkg/types/actions.go Hash(), internal/router/utils.go SignResult, pkg/utils/crypto.go Sign; go-flare-common v1.2.2-...-09a10067e6a4 pkg/signing/hash.go Payload.Hash()"
+}

@@ -1,0 +1,25 @@
+{
+  "scenarios": [
+    {
+      "scenario": "FAIL_NO_PAY",
+      "jobId": "",
+      "attempt": 1,
+      "outcome": "FAIL",
+      "explorerUrl": ""
+    },
+    {
+      "scenario": "PASS_PAY",
+      "jobId": "",
+      "attempt": 2,
+      "outcome": "PASS",
+      "explorerUrl": ""
+    },
+    {
+      "scenario": "REFUND",
+      "jobId": "",
+      "attempt": 0,
+      "outcome": "REFUNDED",
+      "explorerUrl": ""
+    }
+  ]
+}

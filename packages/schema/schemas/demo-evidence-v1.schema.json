@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://workproof.dev/schemas/demo-evidence-v1.schema.json",
+  "title": "DemoEvidenceV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["scenario", "networkName", "chainId", "jobId", "outcome", "timestamps"],
+  "properties": {
+    "scenario": { "enum": ["FAIL_NO_PAY", "PASS_PAY", "REFUND"] },
+    "networkName": { "const": "Coston2" },
+    "chainId": { "const": 114 },
+    "jobId": { "type": "string", "pattern": "^[0-9]+$" },
+    "attempt": { "type": "integer", "minimum": 0 },
+    "client": { "$ref": "#/$defs/address" },
+    "contractor": { "$ref": "#/$defs/address" },
+    "artifactAddress": { "$ref": "#/$defs/address" },
+    "artifactBlock": { "type": "string", "pattern": "^[0-9]+$" },
+    "artifactCodeHash": { "$ref": "#/$defs/bytes32" },
+    "specHash": { "$ref": "#/$defs/bytes32" },
+    "privateBundleHash": { "$ref": "#/$defs/bytes32" },
+    "randomRound": { "type": "string", "pattern": "^[0-9]+$" },
+    "randomIsSecure": { "type": "boolean" },
+    "randomValueHash": { "$ref": "#/$defs/bytes32" },
+    "instructionId": { "$ref": "#/$defs/bytes32" },
+    "resultSignature": { "type": "string", "pattern": "^0x[0-9a-fA-F]+$" },
+    "teeId": { "$ref": "#/$defs/address" },
+    "reportHash": { "$ref": "#/$defs/bytes32" },
+    "outcome": { "enum": ["PASS", "FAIL", "INCONCLUSIVE", "REFUNDED"] },
+    "balanceDeltas": { "type": "object" },
+    "explorerUrl": { "type": "string" },
+    "timestamps": { "type": "object" }
+  },
+  "$defs": {
+    "bytes32": { "type": "string", "pattern": "^0x[0-9a-fA-F]{64}$" },
+    "address": { "type": "string", "pattern": "^0x[0-9a-fA-F]{40}$" }
+  }
+}

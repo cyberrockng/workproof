@@ -2,13 +2,19 @@
 
 An independent audit listed Slither, Semgrep, ShellCheck, Gitleaks, and
 TruffleHog as tools it could not run in its own environment. This document
-records actually running the ones that could be installed without root
-access, what they found, and the disposition of every finding — fixed,
-already mitigated, or reviewed and accepted, never silently dismissed.
+records actually running all five, what they found, and the disposition of
+every finding — fixed, already mitigated, or reviewed and accepted, never
+silently dismissed.
 
-ShellCheck and TruffleHog could not be installed here either (`apt install`
-needs sudo, which this environment doesn't have; no equivalent user-space
-binary was found for either). Still an open gap.
+`apt install shellcheck`/system package managers weren't usable (no sudo in
+this environment), so ShellCheck and TruffleHog were fetched as prebuilt
+binaries directly from their real GitHub release assets (resolved via the
+GitHub API, not guessed filenames — the first guess at ShellCheck's asset
+name was wrong and 404'd, so it was re-derived from `gh api
+repos/koalaman/shellcheck/releases/latest` rather than retried blindly).
+Semgrep and Slither were installed via a `uv`-managed Python venv (`pip`
+itself is externally-managed in this environment; `python3-venv` needs
+`apt`/sudo, `uv` doesn't).
 
 ## gitleaks (v8.30.1)
 
@@ -114,3 +120,48 @@ reviewed individually:
 
 **Net result: zero un-mitigated, actionable findings in
 `WorkProofEscrow.sol` itself.**
+
+## ShellCheck (v0.11.0)
+
+Ran against every `.sh` file in `scripts/` and `testing/` (excluding
+vendored `lib/`). Zero findings in the two scripts this project actually
+authored (`scripts/generate-workproof-bindings.sh`,
+`scripts/generate-workproof-tools-bindings.sh`) or in the extensively
+modified `scripts/pre-build.sh` beyond the same benign pattern every other
+scaffold script already has. Everything else is scaffold-owned:
+
+- `SC1091`/`SC1090` (info/warning, the large majority of findings) — "can't
+  follow non-constant/dynamic source" for `.env`/`config/extension.env`/
+  `lib/*.sh` — a real limitation of static analysis on dynamically-sourced
+  files, not a bug.
+- `SC2097`/`SC2098` (warning) in `scripts/start-services.sh` — a real bash
+  scoping gotcha in principle (`VAR=x cmd "$VAR"` only sets `VAR` for the
+  forked process, not the current shell), but the later `"$EXTENSION_ID"`
+  argument reads the *already-correctly-set* parent-shell variable
+  independently of the prefix assignment, so the actual behavior is
+  correct despite the suspicious-looking pattern. Scaffold-owned, not
+  modified.
+- `SC2148` (error) in `testing/shared/hooks/audit-log.sh` and
+  `teardown.sh` — both files' first line is the literal bytes `#\!/bin/bash`
+  (an escaped `!`) instead of a real `#!/bin/bash` shebang, so direct
+  execution (`./audit-log.sh`) wouldn't reliably pick an interpreter. The
+  one ShellCheck finding in this whole review that's a genuine defect
+  rather than a benign pattern or a tool limitation — but it's in
+  `testing/`, scaffold-owned infrastructure WorkProof doesn't invoke
+  directly, so left as a documented, out-of-scope finding rather than
+  fixed.
+- `SC2016`/`SC2155`/`SC2034`/`SC2153`/`SC2012`/`SC2035` (info/warning,
+  `testing/scripts/*.sh`) — intentional non-expansion in single-quoted
+  `.bashrc` lines, a log-timestamp assignment style nit, two unused color
+  variables, and an `ls`-vs-`find` robustness suggestion. All cosmetic,
+  all scaffold-owned.
+
+## TruffleHog (v3.96.0)
+
+`trufflehog filesystem .` (excluding `lib/`) scanned 3,761 chunks / 42MB in
+~10s. One "verified" result: detector type `Lob` (a print/mail API
+service) matched the string `test_version_is_plain_string_not_bytes32` in
+`python/tests/test_server.py:115` — a Python test *method name*
+(`def test_version_is_plain_string_not_bytes32(self, srv):`), not a
+credential of any kind. Confirmed by reading the actual line rather than
+trusting the "verified" label at face value. **Zero real secrets found.**

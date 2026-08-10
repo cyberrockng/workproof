@@ -5,7 +5,7 @@
 # pinned build lives in ./Dockerfile.
 
 # pin base image by digest so every build starts from the same bytes
-FROM golang:1.25.1-trixie@sha256:ff83f3762390c2cccb53618ccc18af23e556aff9b1db4428637e9f63287c8171 AS builder
+FROM golang:1.25.12-trixie@sha256:8756e3e43d88bbc1e29fa22577cd1e9ff2e67ee29fe0a8023c18073ae5c172d0 AS builder
 
 # commit timestamp, propagated through the build to clamp file mtimes and normalize embedded dates
 ARG SOURCE_DATE_EPOCH

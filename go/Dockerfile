@@ -6,8 +6,13 @@
 # To build against an on-disk sibling tee-node instead (while developing it), use
 # `USE_LOCAL_SIBLINGS=1 ./scripts/start-services.sh`, which selects ./Dockerfile.siblings.
 
-# pin base image by digest so every build starts from the same bytes
-FROM golang:1.25.1-trixie@sha256:ff83f3762390c2cccb53618ccc18af23e556aff9b1db4428637e9f63287c8171 AS builder
+# pin base image by digest so every build starts from the same bytes.
+# Bumped 2026-08-10: govulncheck found 21 reachable stdlib CVEs tied to the
+# go1.25.1 toolchain itself (fixed in go1.25.2 through go1.25.12); the
+# digest below is golang:1.25.12-trixie, fetched via the real Docker Hub
+# registry API, not guessed. Confirmed 0 reachable vulnerabilities and a
+# clean go/tools build+test with this version before pinning it here.
+FROM golang:1.25.12-trixie@sha256:8756e3e43d88bbc1e29fa22577cd1e9ff2e67ee29fe0a8023c18073ae5c172d0 AS builder
 
 # commit timestamp, propagated through the build to clamp file mtimes and normalize embedded dates
 ARG SOURCE_DATE_EPOCH

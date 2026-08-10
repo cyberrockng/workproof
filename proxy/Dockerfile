@@ -11,8 +11,11 @@
 ARG TEE_PROXY_VERSION=v0.0.18
 
 # NOTE: not pinned by digest (unlike the main Dockerfile) — this is a dev convenience build.
-# For full reproducibility, pin by digest: golang:1.25.1-alpine@sha256:...
-FROM golang:1.25.1-alpine AS builder
+# For full reproducibility, pin by digest: golang:1.25.12-alpine@sha256:56961d79ea8129efddcc0b8643fd8a5416b4e6228cfd477e3fd61deb2672c587
+# Bumped 2026-08-10 from 1.25.1 (govulncheck: 21 reachable stdlib CVEs on
+# that version, 0 on 1.25.12) -- kept unpinned, matching this file's own
+# stated dev-convenience intent, not converted to a hard pin.
+FROM golang:1.25.12-alpine AS builder
 
 RUN apk add --no-cache git
 

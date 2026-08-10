@@ -1,5 +1,13 @@
 name: WorkProof CI
 
+# Every `uses:` below is pinned to a full commit SHA, not a mutable tag --
+# semgrep (yaml.github-actions.security.github-actions-mutable-action-tag)
+# flagged the previous `@v4`/`@v1`-style refs: tags/branches can be
+# silently repointed by the action owner (or a compromised account),
+# enabling supply-chain attacks, as happened to tj-actions/changed-files
+# and reviewdog/action-setup in real incidents. The trailing `# vX.Y.Z`
+# comment records which real release each SHA corresponds to, resolved via
+# the GitHub API, not guessed.
 on:
   pull_request:
   push:
@@ -18,10 +26,10 @@ jobs:
       # submodules: recursive is required -- contracts/WorkProofEscrow.sol
       # imports from lib/flare-foundry-periphery-package, and the default
       # checkout (no submodules) previously made forge build fail here.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           submodules: recursive
-      - uses: foundry-rs/foundry-toolchain@v1
+      - uses: foundry-rs/foundry-toolchain@908c540300062bd5a7e473851cdb4282204cee09 # v1.9.1
       # lib/flare-foundry-periphery-package manages its own OpenZeppelin/
       # LayerZero dependencies via soldeer, not nested git submodules --
       # its dependencies/ dir is gitignored inside that submodule and only
@@ -40,11 +48,11 @@ jobs:
     name: Go
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           submodules: recursive
-      - uses: foundry-rs/foundry-toolchain@v1
-      - uses: actions/setup-go@v5
+      - uses: foundry-rs/foundry-toolchain@908c540300062bd5a7e473851cdb4282204cee09 # v1.9.1
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
         with:
           go-version: "1.25.1"
           cache-dependency-path: |
@@ -76,11 +84,11 @@ jobs:
     name: Tools
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           submodules: recursive
-      - uses: foundry-rs/foundry-toolchain@v1
-      - uses: actions/setup-go@v5
+      - uses: foundry-rs/foundry-toolchain@908c540300062bd5a7e473851cdb4282204cee09 # v1.9.1
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
         with:
           go-version: "1.25.1"
           cache-dependency-path: |
@@ -118,11 +126,11 @@ jobs:
     name: Schemas & workspace packages
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
         with:
           version: 9.15.9
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
           cache: pnpm

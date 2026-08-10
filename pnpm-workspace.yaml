@@ -2,3 +2,13 @@ packages:
   - "packages/*"
   - "relayer"
   - "web"
+
+# Supply-chain hardening (semgrep package_managers.pnpm.* findings).
+# blockExoticSubdeps/minimumReleaseAge need pnpm >=10.16-10.26; the project
+# is currently pinned to pnpm 9.15.9 (.github/workflows/ci.yml), so these
+# are forward-compatible settings that take effect once that pin is bumped
+# -- confirmed pnpm 9.15.9 parses and ignores unknown workspace-config keys
+# rather than erroring, so this is safe to add now rather than wait.
+blockExoticSubdeps: true
+minimumReleaseAge: 10080
+trustPolicy: no-downgrade

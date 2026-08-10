@@ -22,6 +22,13 @@ jobs:
         with:
           submodules: recursive
       - uses: foundry-rs/foundry-toolchain@v1
+      # lib/flare-foundry-periphery-package manages its own OpenZeppelin/
+      # LayerZero dependencies via soldeer, not nested git submodules --
+      # its dependencies/ dir is gitignored inside that submodule and only
+      # exists after this. Without it, forge build fails on missing
+      # OpenZeppelin imports even with submodules: recursive above.
+      - run: forge soldeer install
+        working-directory: lib/flare-foundry-periphery-package
       - run: forge fmt --check
       - run: forge build
       - run: forge test
@@ -43,6 +50,10 @@ jobs:
           cache-dependency-path: |
             go/go.sum
             tools/go.sum
+      # See the same step in the contracts job above -- needed before any
+      # forge build, including the one generate-workproof-bindings.sh runs.
+      - run: forge soldeer install
+        working-directory: lib/flare-foundry-periphery-package
       # go/pkg/contracts/workproofescrow's abigen bindings are generated,
       # not committed (see .gitignore) -- must be produced fresh here or
       # internal/verifier fails to compile at all.
@@ -75,6 +86,9 @@ jobs:
           cache-dependency-path: |
             go/go.sum
             tools/go.sum
+      # See the same step in the contracts job above.
+      - run: forge soldeer install
+        working-directory: lib/flare-foundry-periphery-package
       # tools/pkg/contracts/workproofescrow's abigen bindings are also
       # generated, not committed -- same reasoning as the go job above.
       - run: bash scripts/generate-workproof-tools-bindings.sh

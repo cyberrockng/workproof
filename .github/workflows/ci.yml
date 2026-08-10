@@ -15,29 +15,87 @@ jobs:
     name: Contracts
     runs-on: ubuntu-latest
     steps:
+      # submodules: recursive is required -- contracts/WorkProofEscrow.sol
+      # imports from lib/flare-foundry-periphery-package, and the default
+      # checkout (no submodules) previously made forge build fail here.
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
       - uses: foundry-rs/foundry-toolchain@v1
       - run: forge fmt --check
       - run: forge build
+      - run: forge test
+      # RealRegistryFork.t.sol forks live Coston2 (read-only calls +
+      # vm.prank impersonation, never a real signed tx) -- no secrets needed.
+      - run: forge coverage --ir-minimum
 
   go:
     name: Go
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: foundry-rs/foundry-toolchain@v1
       - uses: actions/setup-go@v5
         with:
           go-version: "1.25.1"
           cache-dependency-path: |
             go/go.sum
             tools/go.sum
-      - run: go fmt ./...
+      # go/pkg/contracts/workproofescrow's abigen bindings are generated,
+      # not committed (see .gitignore) -- must be produced fresh here or
+      # internal/verifier fails to compile at all.
+      - run: bash scripts/generate-workproof-bindings.sh
+      - name: gofmt check
         working-directory: go
-      - run: go test ./...
+        run: |
+          unformatted="$(gofmt -l .)"
+          if [ -n "$unformatted" ]; then
+            echo "$unformatted"
+            echo "::error::gofmt found unformatted files (listed above) -- run 'gofmt -w .'"
+            exit 1
+          fi
+      - run: go vet ./...
+        working-directory: go
+      - run: go test ./... -race -cover
         working-directory: go
 
+  tools:
+    name: Tools
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: foundry-rs/foundry-toolchain@v1
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25.1"
+          cache-dependency-path: |
+            go/go.sum
+            tools/go.sum
+      # tools/pkg/contracts/workproofescrow's abigen bindings are also
+      # generated, not committed -- same reasoning as the go job above.
+      - run: bash scripts/generate-workproof-tools-bindings.sh
+      - name: gofmt check
+        working-directory: tools
+        run: |
+          unformatted="$(gofmt -l .)"
+          if [ -n "$unformatted" ]; then
+            echo "$unformatted"
+            echo "::error::gofmt found unformatted files (listed above) -- run 'gofmt -w .'"
+            exit 1
+          fi
+      - run: go vet ./...
+        working-directory: tools
+      # Unit tests only -- integration/ needs //go:build integration and a
+      # live chain node, not something CI can provide.
+      - run: go test ./...
+        working-directory: tools
+
   schemas:
-    name: Schemas
+    name: Schemas & workspace packages
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -49,4 +107,9 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --dir packages/schema test
+      # Runs every workspace package's own "test" script (packages/schema,
+      # packages/test-bundle-sdk, relayer, web), not just packages/schema.
+      # node --test exits 0 with zero tests found, so this stays green and
+      # honestly reflects the placeholder packages' real state rather than
+      # silently skipping them.
+      - run: pnpm -r test

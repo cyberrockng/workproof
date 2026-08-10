@@ -1,13 +1,28 @@
 #!/usr/bin/env bash
-# pre-build.sh — Deploy InstructionSender contract and register extension on-chain.
+# pre-build.sh — Deploy WorkProofEscrow and register it as an FCC extension.
+#
+# Deploys the real production WorkProofEscrow contract (NOT the scaffold's
+# sample HelloWorldInstructionSender -- WorkProofEscrow is itself the
+# instruction sender, so no second wrapper contract is needed), registers
+# it against the FlareTeeManager diamond (register-extension is already
+# fully generic and needs no WorkProof-specific changes), then calls
+# WorkProofEscrow.setExtensionId() so it adopts the id the registration
+# step just created.
 #
 # Inputs (env vars):
 #   ADDRESSES_FILE  — path to deployed-addresses.json (auto-detected if unset)
 #   CHAIN_URL       — chain RPC URL (default: http://127.0.0.1:8545)
 #   DEPLOYMENT_PRIVATE_KEY — funded private key (default: Hardhat account)
+#   WORKPROOF_TREASURY — required; the escrow's protocol-fee recipient
+#   WORKPROOF_PROTOCOL_FEE_BPS — optional, defaults to 100 (1%)
 #
 # Outputs:
-#   config/extension.env — EXTENSION_ID and INSTRUCTION_SENDER
+#   config/extension.env — EXTENSION_ID, INSTRUCTION_SENDER, and
+#                           WORKPROOF_ESCROW_ADDRESS (same address as
+#                           INSTRUCTION_SENDER for WorkProof -- both names
+#                           are kept so existing generic scripts that read
+#                           INSTRUCTION_SENDER/EXTENSION_ID keep working
+#                           unchanged)
 #   config/deploy.log    — stderr from Go deploy commands
 set -euo pipefail
 
@@ -81,7 +96,7 @@ log "Addresses file: $ADDRESSES_FILE"
 # Must run before the pre-flight check: the tools module imports the generated
 # bindings, so on a fresh clone nothing in tools/ compiles until they exist.
 step 0 "Generate Go bindings"
-"$SCRIPT_DIR/generate-bindings.sh" || die "Binding generation failed"
+"$SCRIPT_DIR/generate-workproof-tools-bindings.sh" || die "Binding generation failed"
 
 # --- Step 1: Pre-flight check ---
 step 1 "Pre-flight check"
@@ -92,15 +107,15 @@ step 1 "Pre-flight check"
 "$SCRIPT_DIR/check-versions.sh" || die "dependency version pins are inconsistent"
 
 cd "$PROJECT_DIR/tools"
-if ! go run ./cmd/deploy-contract -a "$ADDRESSES_FILE" -c "$CHAIN_URL" --preflight-only 2>&1; then
+if ! go run ./cmd/deploy-workproof-escrow -a "$ADDRESSES_FILE" -c "$CHAIN_URL" --preflight-only 2>&1; then
     die "Pre-flight check failed — fix the issues above before deploying"
 fi
 
-# --- Step 2: Deploy InstructionSender ---
-step 2 "Deploy InstructionSender contract"
+# --- Step 2: Deploy WorkProofEscrow ---
+step 2 "Deploy WorkProofEscrow contract"
 cd "$PROJECT_DIR/tools"
 : > "$LOG_FILE"  # truncate log file
-INSTRUCTION_SENDER=$(go run ./cmd/deploy-contract -a "$ADDRESSES_FILE" -c "$CHAIN_URL" 2>"$LOG_FILE" | tail -1) || {
+INSTRUCTION_SENDER=$(go run ./cmd/deploy-workproof-escrow -a "$ADDRESSES_FILE" -c "$CHAIN_URL" 2>"$LOG_FILE" | tail -1) || {
     echo -e "${RED}Deploy failed. Logs:${NC}" >&2
     cat "$LOG_FILE" >&2
     die "Deploy failed — see output above"
@@ -108,14 +123,16 @@ INSTRUCTION_SENDER=$(go run ./cmd/deploy-contract -a "$ADDRESSES_FILE" -c "$CHAI
 
 # Validate captured address
 [[ "$INSTRUCTION_SENDER" =~ ^0x[0-9a-fA-F]{40}$ ]] || {
-    echo -e "${RED}deploy-contract output was not a valid address. Logs:${NC}" >&2
+    echo -e "${RED}deploy-workproof-escrow output was not a valid address. Logs:${NC}" >&2
     cat "$LOG_FILE" >&2
-    die "deploy-contract returned invalid address: '$INSTRUCTION_SENDER' (expected 0x + 40 hex chars)"
+    die "deploy-workproof-escrow returned invalid address: '$INSTRUCTION_SENDER' (expected 0x + 40 hex chars)"
 }
 
-log "InstructionSender deployed at: $INSTRUCTION_SENDER"
+log "WorkProofEscrow deployed at: $INSTRUCTION_SENDER"
 
 # --- Step 3: Register extension ---
+# Generic against the FlareTeeManager diamond -- works for any
+# instructionSender address, no WorkProof-specific changes needed here.
 step 3 "Register extension on-chain"
 EXTENSION_ID=$(go run ./cmd/register-extension -a "$ADDRESSES_FILE" -c "$CHAIN_URL" --instructionSender "$INSTRUCTION_SENDER" 2>>"$LOG_FILE" | tail -1) || {
     echo -e "${RED}Registration failed. Logs:${NC}" >&2
@@ -132,20 +149,33 @@ EXTENSION_ID=$(go run ./cmd/register-extension -a "$ADDRESSES_FILE" -c "$CHAIN_U
 
 log "Extension ID: $EXTENSION_ID"
 
-# --- Step 4: Write config ---
-step 4 "Write config"
+# --- Step 4: WorkProofEscrow adopts its extension ID ---
+# Must run after Step 3: setExtensionId() only adopts an id the registry
+# already associated with this exact address; it does not register anything
+# itself.
+step 4 "WorkProofEscrow.setExtensionId()"
+go run ./cmd/set-workproof-extension-id -a "$ADDRESSES_FILE" -c "$CHAIN_URL" --escrow "$INSTRUCTION_SENDER" 2>>"$LOG_FILE" || {
+    echo -e "${RED}setExtensionId failed. Logs:${NC}" >&2
+    cat "$LOG_FILE" >&2
+    die "setExtensionId failed — see output above"
+}
+log "WorkProofEscrow.setExtensionId() succeeded"
+
+# --- Step 5: Write config ---
+step 5 "Write config"
 mkdir -p "$(dirname "$CONFIG_OUTPUT")"
 cat > "$CONFIG_OUTPUT" <<EOF
 # Auto-generated by pre-build.sh — do not edit manually
 EXTENSION_ID=$EXTENSION_ID
 INSTRUCTION_SENDER=$INSTRUCTION_SENDER
+WORKPROOF_ESCROW_ADDRESS=$INSTRUCTION_SENDER
 EOF
 
 echo ""
 echo -e "${GREEN}========================================${NC}"
 echo -e "${GREEN} Pre-build complete${NC}"
 echo -e "${GREEN}========================================${NC}"
-echo "  EXTENSION_ID         $EXTENSION_ID"
-echo "  INSTRUCTION_SENDER   $INSTRUCTION_SENDER"
-echo "  Config file          $CONFIG_OUTPUT"
-echo "  Deploy log           $LOG_FILE"
+echo "  EXTENSION_ID              $EXTENSION_ID"
+echo "  WORKPROOF_ESCROW_ADDRESS  $INSTRUCTION_SENDER"
+echo "  Config file               $CONFIG_OUTPUT"
+echo "  Deploy log                $LOG_FILE"

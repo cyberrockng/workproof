@@ -26,6 +26,8 @@ The owner can stop new exposure but cannot decide outcomes. Emergency actions fo
 | Secret leaks | No plaintext in logs, chain, reports, analytics, or screenshots | Secret scan and canary test |
 | Token incompatibility | P0 accepts only resolved FTestXRP | Wrong token rejected |
 | Reentrancy/nonstandard ERC20 | SafeERC20, ReentrancyGuard, and state-first accounting | Malicious-token tests |
+| Compromised/lying RPC provider | None dedicated -- every artifact/storage/call/randomness read in `internal/verifier` goes through one configured RPC. Partially bounded, not eliminated: a lying RPC can only affect the outcome of the job it's asked about (there is no cross-job blast radius), and every value it returns is independently re-derived/recomputed by the verifier rather than trusted from the relayed instruction (artifactCodeHash, randomValueHash, on-chain job state) -- but a compromised RPC could still lie consistently enough to make the attested TEE sign a wrong PASS/FAIL for that one job | Not yet demonstrated; see Residual Risks |
+| TEE clock drift | `_checkOutcomeBinding` bounds `issuedAt` to `[dispatchedAt, block.timestamp]` on-chain -- a drifted/wrong TEE clock causes safe settlement REJECTION (liveness), never acceptance of a falsely-timestamped verdict | `testMutationRejected_issuedAtBeforeDispatch`/`testMutationRejected_issuedAtInFuture` |
 
 ## Residual Risks
 
@@ -33,3 +35,4 @@ The owner can stop new exposure but cannot decide outcomes. Emergency actions fo
 - Real mainnet use needs an independent contract audit, operational hardening, legal review, and production custody/payment partners.
 - P0 does not support subjective work, multi-transaction stateful scenarios, arbitrary native test code, or high-availability TEE secret rewrapping.
 - FCC ActionResult compatibility is a mandatory spike. Backend-signed settlement is not an acceptable substitute.
+- The Go verifier trusts a single configured RPC endpoint (`WORKPROOF_RPC_URL`) as its only view of chain state for a given verification. This is a real, currently-undemonstrated trust dependency, not a solved problem -- mitigating it for real (multiple independent providers with quorum/cross-check, or a light-client-verified read path) is out of P0 scope. `VerdictOutcome.IssuedAt` also uses the TEE host's real wall-clock time (`time.Now()`), which is intentionally non-deterministic across runs (it is a genuine timestamp, not a derived value) -- a mainnet operator must run NTP-synchronized clocks on TEE hosts, an operational assumption Confidential Space's attestation stack typically already satisfies.

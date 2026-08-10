@@ -29,8 +29,8 @@ import (
 type vector struct {
 	PrivateKeyTestOnly string `json:"privateKeyTestOnly"`
 	ExpectedTeeAddress string `json:"expectedTeeAddress"`
-	ChainID             uint64 `json:"chainId"`
-	ActionResult        struct {
+	ChainID            uint64 `json:"chainId"`
+	ActionResult       struct {
 		ID            string `json:"id"`
 		SubmissionTag string `json:"submissionTag"`
 		Status        uint8  `json:"status"`

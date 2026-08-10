@@ -18,6 +18,7 @@ config/extension.env
 out/
 cache/
 .DS_Store
+lcov.info
 
 # go.work is generated on demand by start-services.sh for USE_LOCAL_SIBLINGS=1
 # (points host builds at sibling tee-node / tee-proxy). Never committed.
@@ -36,10 +37,14 @@ tools/set-*
 tools/audit-*
 tools/test-*
 
-# Generated contract bindings (produced by scripts/generate-bindings.sh)
+# Generated contract bindings (produced by scripts/generate-bindings.sh,
+# scripts/generate-workproof-bindings.sh, scripts/generate-workproof-tools-bindings.sh)
 tools/pkg/contracts/*/autogen.go
 tools/pkg/contracts/*/*.abi
 tools/pkg/contracts/*/*.bin
+go/pkg/contracts/*/autogen.go
+go/pkg/contracts/*/*.abi
+go/pkg/contracts/*/*.bin
 
 # Language implementation build artifacts.
 # package-lock.json is deliberately NOT ignored — it is the reproducibility

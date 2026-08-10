@@ -46,6 +46,13 @@ type State struct {
 	LastGreeting  string `json:"lastGreeting"`
 	FarewellCount int    `json:"farewellCount"`
 	LastFarewell  string `json:"lastFarewell"`
+
+	// WorkProofVerifierConfigured is false whenever the WORKPROOF_* env
+	// vars are missing/invalid, so a nil verifier is visible at /state
+	// instead of only surfacing on the first real VERIFY instruction's
+	// status=0 failure. An operator (or a launch-time health check) can
+	// catch a misconfiguration before it matters.
+	WorkProofVerifierConfigured bool `json:"workProofVerifierConfigured"`
 }
 
 // --- DO NOT MODIFY below this line. ---

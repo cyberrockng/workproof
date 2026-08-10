@@ -1,1 +1,3 @@
 forge-std/=lib/forge-std/src/
+flare-periphery/=lib/flare-foundry-periphery-package/src/
+@openzeppelin/contracts/=lib/flare-foundry-periphery-package/dependencies/@openzeppelin-contracts-5.2.0-rc.1/

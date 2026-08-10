@@ -6,3 +6,17 @@ libs = ["lib"]
 # and restore the remapping:
 #   remappings = ["flare-smart-contracts-v2=lib/flare-smart-contracts-v2"]
 via-ir = true
+evm_version = "cancun"
+optimizer = true
+optimizer_runs = 200
+# Pinned, not auto-detected: forge's auto_detect_solc (the prior default)
+# picks whatever installed 0.8.x satisfies `pragma solidity ^0.8.24` at
+# build time -- a different machine, or the same machine after a later solc
+# release, could silently resolve to different bytecode, which would break
+# the reproducible code-hash evidence a TEE deployment needs (plan Phase 6).
+# This is the exact version every real build/test/deploy this session has
+# actually used (`forge --version` / build output), not a guess.
+solc = "0.8.35"
+
+[rpc_endpoints]
+coston2 = "https://coston2-api.flare.network/ext/C/rpc"

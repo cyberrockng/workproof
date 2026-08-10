@@ -13,7 +13,8 @@
         "greetingCount": 2,
         "lastGreeting": "Hello, Second! Welcome to Flare Confidential Compute.",
         "farewellCount": 2,
-        "lastFarewell": "Goodbye, W! Reason: "
+        "lastFarewell": "Goodbye, W! Reason: ",
+        "workProofVerifierConfigured": false
       }
     }
   }

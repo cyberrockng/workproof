@@ -98,5 +98,22 @@ contract FccSignatureSpikeTest is Test {
         address signer = FccVerdict.recoverVerdictSigner(DATA, ID, TAG, STATUS, CHAIN_ID, malleated);
         assertTrue(signer != EXPECTED_SIGNER, "high-S malleated signature was accepted");
     }
+
+    /// @dev A v byte that is neither 27/28 nor the raw 0/1 that gets
+    /// normalized to them must be rejected cleanly (return address(0)), not
+    /// passed through to ecrecover with an out-of-range v.
+    function testInvalidVByteReturnsZero() external pure {
+        bytes memory sig = SIGNATURE;
+        bytes32 r;
+        bytes32 s;
+        assembly {
+            r := mload(add(sig, 32))
+            s := mload(add(sig, 64))
+        }
+        uint8 invalidV = 99;
+        bytes memory malformed = abi.encodePacked(r, s, invalidV);
+        address signer = FccVerdict.recoverVerdictSigner(DATA, ID, TAG, STATUS, CHAIN_ID, malformed);
+        assertEq(signer, address(0), "invalid v byte was not rejected cleanly");
+    }
 }
 

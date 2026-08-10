@@ -1,4 +1,10 @@
 {
+  "lib/flare-foundry-periphery-package": {
+    "tag": {
+      "name": "0.1.52",
+      "rev": "ca264d6a31ddfb53d1bef7cb7bd1942aa89d323a"
+    }
+  },
   "lib/forge-std": {
     "tag": {
       "name": "v1.16.2",

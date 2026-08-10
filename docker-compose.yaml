@@ -53,6 +53,15 @@ services:
       - EXTENSION_PORT=7702
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - SIMULATED_TEE=${SIMULATED_TEE:-true}
+      # WorkProof-specific: previously not passed through at all (the
+      # container silently started with a nil verifier -- see /state's
+      # workProofVerifierConfigured field). WORKPROOF_ESCROW_ADDRESS is
+      # deliberately NOT listed here: pre-build.sh writes it into
+      # config/extension.env instead (env_file above), since it's a deploy
+      # output, not a static .env value like these three.
+      - WORKPROOF_RPC_URL=${WORKPROOF_RPC_URL:-}
+      - WORKPROOF_RANDOM_NUMBER_V2_ADDRESS=${WORKPROOF_RANDOM_NUMBER_V2_ADDRESS:-}
+      - WORKPROOF_CIPHERTEXT_HOSTS=${WORKPROOF_CIPHERTEXT_HOSTS:-}
     depends_on:
       - ext-proxy
 

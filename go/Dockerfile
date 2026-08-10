@@ -67,8 +67,13 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GOFLAGS="-buildvcs=false" \
 # touch every path to SOURCE_DATE_EPOCH explicitly so timestamps are normalized in both directions
 RUN if [ "${SOURCE_DATE_EPOCH:-0}" -gt 0 ] 2>/dev/null; then find /app -exec touch -h -d @${SOURCE_DATE_EPOCH} {} +; fi
 
-# empty base image so nothing outside these explicit copies ends up in the final layers
-FROM gcr.io/distroless/static
+# empty base image so nothing outside these explicit copies ends up in the
+# final layers -- pinned by digest (fetched 2026-08-09 via the real GCR
+# registry HTTP API, gcr.io/v2/distroless/static/manifests/latest, not
+# hand-typed) so a rebuild months later can't silently pull a different
+# image than the one this was actually built and tested against, the same
+# reproducibility guarantee the builder stage above already had.
+FROM gcr.io/distroless/static@sha256:9197324ba51d9cd071af8505989365c006adf9d6d2067eada25aef00abbb5278
 
 WORKDIR /app
 
@@ -91,7 +96,12 @@ USER 0:0
 
 # confidential space launch policy label: allow the operator to override these env vars at workload launch
 # without this, the confidential space VM rejects overrides at attestation time and the values baked here are final
-LABEL "tee.launch_policy.allow_env_override"="LOG_LEVEL,PROXY_URL,INITIAL_OWNER,EXTENSION_ID,CHAIN_URL,MODE,CONFIG_PORT,SIGN_PORT,EXTENSION_PORT"
+#
+# WORKPROOF_* included so a real Phase 7 Confidential Space launch can
+# actually configure the verifier -- without these, the launch policy would
+# reject the override and the image would need a full rebuild just to point
+# at a different escrow/RPC/ciphertext gateway.
+LABEL "tee.launch_policy.allow_env_override"="LOG_LEVEL,PROXY_URL,INITIAL_OWNER,EXTENSION_ID,CHAIN_URL,MODE,CONFIG_PORT,SIGN_PORT,EXTENSION_PORT,WORKPROOF_RPC_URL,WORKPROOF_ESCROW_ADDRESS,WORKPROOF_RANDOM_NUMBER_V2_ADDRESS,WORKPROOF_CIPHERTEXT_HOSTS"
 
 EXPOSE 5501 7701 7702
 

@@ -89,8 +89,14 @@ jobs:
       # See the same step in the contracts job above.
       - run: forge soldeer install
         working-directory: lib/flare-foundry-periphery-package
-      # tools/pkg/contracts/workproofescrow's abigen bindings are also
-      # generated, not committed -- same reasoning as the go job above.
+      # tools/pkg/utils/instructions.go (original scaffold code, still
+      # present and still compiled as part of this module) imports the
+      # helloworld package, so its bindings are needed here too, in
+      # addition to workproofescrow's -- both are generated, not committed.
+      # Missing this exact step is what broke this job the first time this
+      # CI fix was pushed (confirmed via the actual failed run before
+      # adding this).
+      - run: bash scripts/generate-bindings.sh
       - run: bash scripts/generate-workproof-tools-bindings.sh
       - name: gofmt check
         working-directory: tools

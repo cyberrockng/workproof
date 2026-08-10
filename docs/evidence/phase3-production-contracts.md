@@ -61,7 +61,27 @@ bytecode, not a guess. See `test/RealRegistryFork.t.sol`.
 
 ## Test suites
 
-Two suites, deliberately kept separate:
+Three suites, deliberately kept separate:
+
+- `test/WorkProofEscrowInvariant.t.sol` — a real Foundry stateful invariant
+  suite (added during post-audit remediation to close the "0 invariant
+  functions" gap), not just more fuzz tests. A handler drives arbitrary
+  interleaved sequences across many jobs at once (create/accept/submit/
+  lock/dispatch/settle-with-a-real-TEE-signed-verdict/refund/cancel, in any
+  order), which the existing single-job `testFuzzSolvencyAndSinglePayout`
+  structurally cannot reach. Three invariants, 256 runs × 500 calls each:
+  `invariant_solvency` (escrow balance == funded − paid − refunded, via
+  independent ghost accounting, not re-reading the contract's own storage),
+  `invariant_noJobEverPaysAndRefunds`, `invariant_settledFlagMatchesObservedOutcome`.
+  `invariant_solvency` confirmed load-bearing by injecting a 1-unit
+  untracked leak into the contract's Pass payout path and watching it fail
+  with the exact expected off-by-one (`682453030130 != 682453030131`), with
+  Foundry's own shrinker finding an 8-call minimal repro; a first attempt at
+  this meta-check (doubling the payout instead) revealed a real methodology
+  bug before that -- it just made the transfer revert on insufficient
+  balance, which the handler's `try/catch` silently absorbed, so it never
+  actually exercised the invariant at all. Restored to a byte-identical
+  contract (diffed against HEAD) after both meta-checks.
 
 - `test/WorkProofEscrow.t.sol` — 85 tests (80 as of the initial Phase 3 pass;
   5 more added during post-audit remediation, see

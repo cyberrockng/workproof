@@ -197,11 +197,22 @@ claims most directly need correcting for:
   original doc comment's claim to have closed it); `config.MaxBundleBytes`/
   `TimeoutMsPerCall`/the ERC-165 vector's gas cap were validated but never
   enforced.
-- Coverage climbed from 32.5% to 43.6% during remediation, driven by real
+- Coverage climbed from 32.5% to 44.9% during remediation, driven by real
   new tests for each fix above (fake-RPC-server tests distinguishing
   genuine reverts from transport failures, DNS-pinning tests using a real
   local listener, resource-limit tests, an engine-version regression test)
   -- not from padding existing paths.
+- "Canonical return validation" (bundled into the audit's repair item 3
+  alongside revert/RPC distinction, value, and per-call timeouts -- the
+  other three were already fixed): `executeErc165` used to accept any
+  response with `result[31]==1` as `supports=true`, regardless of what the
+  other 31 bytes contained or whether the response was even 32 bytes long
+  -- a garbage-padded or wrong-length response could be silently accepted
+  as a canonically-encoded `bool`. Fixed using go-ethereum's own strict ABI
+  bool decoder (`accounts/abi.readBool` semantics: bytes[0:31] must be all
+  zero, the last byte must be exactly 0 or 1, response must be exactly 32
+  bytes), not a hand-rolled check. Five new tests, three confirmed
+  load-bearing via meta-check.
 - The deployment pipeline finding (C2 -- `pre-build.sh` deployed the
   scaffold's sample `HelloWorldInstructionSender`, never `WorkProofEscrow`)
   is Phase 5/tools-scope, not this phase's own claims, but is the reason

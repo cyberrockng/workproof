@@ -264,9 +264,41 @@ func executeErc165(ctx context.Context, eth *ethclient.Client, target common.Add
 	if err != nil {
 		return VectorOutcome{ID: v.ID, Skipped: true, Detail: "call error (contract may not implement ERC165)"}
 	}
-	supports := len(result) >= 32 && result[31] == 1
+	supports, err := decodeCanonicalBool(result)
+	if err != nil {
+		// A garbage-padded or wrong-length "truthy" response is not the
+		// same thing as a real, canonically-ABI-encoded bool -- treat it as
+		// inconclusive rather than lenient-decode it into a pass.
+		return VectorOutcome{ID: v.ID, Skipped: true, Detail: "non-canonical supportsInterface response: " + err.Error()}
+	}
 	expected := v.Expected != nil && *v.Expected
 	return VectorOutcome{ID: v.ID, Passed: supports == expected}
+}
+
+// decodeCanonicalBool decodes a single ABI-encoded bool return value using
+// go-ethereum's own decoder (accounts/abi.readBool), which requires bytes
+// [0:31] to be all zero and the last byte to be exactly 0x00 or 0x01 --
+// rejecting any garbage-padded or wrong-length response instead of the
+// lenient `len(result) >= 32 && result[31] == 1` check this used to be,
+// which would have silently accepted a non-canonical "truthy" value (e.g.
+// 0x01 in some other byte position) as supports=true.
+func decodeCanonicalBool(result []byte) (bool, error) {
+	if len(result) != 32 {
+		return false, fmt.Errorf("expected exactly 32 bytes, got %d", len(result))
+	}
+	boolTy, err := abi.NewType("bool", "", nil)
+	if err != nil {
+		return false, err
+	}
+	values, err := (abi.Arguments{{Type: boolTy}}).Unpack(result)
+	if err != nil {
+		return false, err
+	}
+	supports, ok := values[0].(bool)
+	if !ok {
+		return false, fmt.Errorf("unexpected decoded type %T", values[0])
+	}
+	return supports, nil
 }
 
 func executeCodeSizeRange(ctx context.Context, eth *ethclient.Client, target common.Address, block *big.Int, v Vector) VectorOutcome {

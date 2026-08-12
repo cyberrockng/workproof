@@ -1,0 +1,65 @@
+{
+  "networkName": "Coston2",
+  "chainId": 114,
+  "rpc": "https://coston2-api.flare.network/ext/C/rpc",
+  "explorer": "https://coston2-explorer.flare.network",
+  "sourceCommit": "acda563c16c233e220f2fafafc0839cedfd0c81f",
+  "workingTreeDirty": true,
+  "deployedAt": "2026-08-12T18:23:52Z",
+  "deployer": "0x9D51803c7aEC6F8A67E0A578158e5f84F774EEAB",
+  "contractAddresses": {
+    "WorkProofEscrow": "0x62D7AFE78bC7D8E1D8266C8C248C7Cdb35ad4EFc",
+    "FlareTeeManager": "0x1a9C4A0f9D76c0b1D91d22E24E573a9b377618aE",
+    "treasury": "0xDA02a4df41581756F209e73B4aD1Ab70fC1B575e"
+  },
+  "contractDeploymentTxs": {
+    "deployWorkProofEscrow": "0x681b6d0c7cdf82c4d53cf3c9ac6fed7ea48a1caec5011dce39be15c111e9ae9d",
+    "registerExtension": "0x72185f0250c9119e0d0d7697930f50682f11914816c0736e1d89ac44da490eeb",
+    "allowTeeMachineOwners": "0xe6a35715c4e33238a9a16884c1228c1825ef040883f01aad76811b122e2fe54a",
+    "allowTeeWalletProjectOwners": "0x99ea1f4526cc9b2357daf089b0f2c774e048c8081852ba55b7f3d834534dec87",
+    "addSupportedKeyTypes": "0x35f40504cf6b68d036cdf22303b3ef4b013a64f0b4aaa1e43124688a302ecc0f",
+    "setExtensionId": "0xccdf768bb202257794f59847c3ef999bc32384e8ea5260dac026e74a6d64e76b"
+  },
+  "resolvedFTestXRP": "0x0b6A3645c240605887a5532109323A3E12273dc7",
+  "protocolFeeBps": 100,
+  "extensionId": "0x0000000000000000000000000000000000000000000000000000000000010281",
+  "extensionIdDecimal": 66177,
+  "registryVerification": {
+    "getTeeExtensionInstructionsSender": "0x62D7AFE78bC7D8E1D8266C8C248C7Cdb35ad4EFc",
+    "nextPublicExtensionIdAfterRegistration": 66178,
+    "escrowBytecodeBytesIncluding0x": 20959
+  },
+  "phase5ServiceStatus": {
+    "preBuild": "passed",
+    "startServices": "passed",
+    "dockerFallback": "Docker Desktop was usable through a temporary WSL wrapper for the Windows docker.exe CLI; images built and containers started.",
+    "indexerPath": "self-hosted flare-system-c-chain-indexer MySQL exposed on host.docker.internal:3306",
+    "indexerRpc": "https://falling-skilled-uranium.flare-coston2.quiknode.pro/ext/bc/C/rpc",
+    "hostedIndexerConnectivity": "Flare-provided hosted DB credentials were applied locally, but 35.241.249.150:3306 refused/timed out from this network.",
+    "extensionProxyInfo": {
+      "status": "live",
+      "checkedAt": "2026-08-13T00:16:00+01:00",
+      "localUrl": "http://localhost:6674/info",
+      "stableTunnelUrl": "https://retention-pasta-clip.ngrok-free.dev/info",
+      "extensionIdInInfo": "0x0000000000000000000000000000000000000000000000000000000000010281",
+      "chainId": 114,
+      "simulatedAttestation": "magic_pass",
+      "initialSigningPolicyId": 5930,
+      "lastSigningPolicyId": 5930,
+      "teeId": "0x0BC40802A4C1637F311b59090c9Fdf57b4Bf165e"
+    },
+    "postBuild": "partial",
+    "postBuildProgress": {
+      "allowTeeVersion": "passed",
+      "setGovernance": "passed",
+      "registerTeeState": "rRa",
+      "teeAttestInstructionId": "0xb990c908fa4331c6f83007e196cdc1dad769a3bda4dc7aa2b4c6792ed82f1e94",
+      "availabilityInstructionId": "0xab0c8151cccaa60d1a0a5166567b85073ec80c69a12e3014774ddb4a2113bafb",
+      "normalProxy": "https://tee-proxy-coston2-1.flare.rocks",
+      "normalProxyPolicyEpoch": 5932
+    },
+    "blockers": [
+      "Coston2 FTDC normal proxy returned 404 for the availability-check result after several minutes of polling. Keep config/register-tee.state and resume promotion with REGISTER_TEE_COMMAND=p once the proof appears, or request a fresh availability check and escalate to Flare if it repeats."
+    ]
+  }
+}

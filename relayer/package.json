@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "relay": "node dist/relay.js",
-    "test": "node --test"
+    "relay": "node src/relay.js relay",
+    "expire": "node src/relay.js expire",
+    "refund": "node src/relay.js refund",
+    "test": "node --test test/*.test.js"
   }
 }

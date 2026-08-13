@@ -209,3 +209,30 @@ func TestLoadState_ExtraFieldsIgnored(t *testing.T) {
 		t.Errorf("expected CompletedSteps %q, got %q", "r", loaded.CompletedSteps)
 	}
 }
+
+func TestSavedAvailabilityInstructionID_UsesSavedStateForPromotionResume(t *testing.T) {
+	saved := common.HexToHash("0x3333333333333333333333333333333333333333333333333333333333333333")
+	state := &registrationState{
+		CompletedSteps: "rRa",
+		InstructionID:  saved,
+	}
+
+	got := savedAvailabilityInstructionID("", state)
+	if got != saved {
+		t.Fatalf("expected saved instruction %s, got %s", saved.Hex(), got.Hex())
+	}
+}
+
+func TestSavedAvailabilityInstructionID_ExplicitInstructionWins(t *testing.T) {
+	saved := common.HexToHash("0x3333333333333333333333333333333333333333333333333333333333333333")
+	explicit := common.HexToHash("0x4444444444444444444444444444444444444444444444444444444444444444")
+	state := &registrationState{
+		CompletedSteps: "rRa",
+		InstructionID:  saved,
+	}
+
+	got := savedAvailabilityInstructionID(explicit.Hex(), state)
+	if got != explicit {
+		t.Fatalf("expected explicit instruction %s, got %s", explicit.Hex(), got.Hex())
+	}
+}

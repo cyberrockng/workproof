@@ -30,6 +30,17 @@ type registrationState struct {
 	InstructionID          common.Hash `json:"instruction_id"`
 }
 
+func savedAvailabilityInstructionID(instructionIDString string, state *registrationState) common.Hash {
+	if instructionIDString != "" {
+		return common.HexToHash(instructionIDString)
+	}
+	if state != nil && strings.Contains(state.CompletedSteps, "a") && state.InstructionID != (common.Hash{}) {
+		logger.Infof("Using saved FTDC availability instructionId: %s", state.InstructionID.Hex())
+		return state.InstructionID
+	}
+	return common.Hash{}
+}
+
 func loadState(path string) (*registrationState, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -151,7 +162,7 @@ func RegisterNode(s *support.Support, teeInfo *types.SignedTeeInfoResponse, host
 		}
 		time.Sleep(1 * time.Second)
 	} else {
-		instructionID = common.HexToHash(instructionIDstring)
+		instructionID = savedAvailabilityInstructionID(instructionIDstring, state)
 	}
 
 	if strings.Contains(command, "p") {

@@ -52,10 +52,9 @@ contract WorkProofEscrow is ReentrancyGuard {
     uint8 private constant TEE_STATUS_PRODUCTION = 2;
 
     /// @dev Job terms frozen at creation (threat model: "Client changes
-    /// tests"). `expectedTee` is selected and pinned here — not at dispatch
-    /// — because the client must know which TEE's public key to encrypt the
-    /// private bundle to before/at job creation (plan section 8 createJob:
-    /// "select/confirm the only active P0 TEE"). It never changes for the
+    /// tests"). `expectedTee` is supplied by the client and pinned here
+    /// because the client must encrypt the private bundle to exactly that
+    /// TEE's public key before/at job creation. It never changes for the
     /// life of the job, across any number of resubmitted attempts.
     struct JobTerms {
         address client;
@@ -349,6 +348,7 @@ contract WorkProofEscrow is ReentrancyGuard {
 
     function createJob(
         address contractor,
+        address expectedTee,
         uint128 principal,
         uint64 acceptBy,
         uint64 submitBy,
@@ -360,13 +360,11 @@ contract WorkProofEscrow is ReentrancyGuard {
         bytes32 ciphertextHash
     ) external whenNotPaused nonReentrant returns (uint256 id) {
         if (
-            contractor == address(0) || acceptBy <= block.timestamp || submitBy <= acceptBy || graceEnds <= submitBy
-                || verificationTimeout == 0 || principal == 0
+            contractor == address(0) || expectedTee == address(0) || acceptBy <= block.timestamp || submitBy <= acceptBy
+                || graceEnds <= submitBy || verificationTimeout == 0 || principal == 0
         ) revert InvalidVerdict();
 
-        address[] memory teeIds = TEE_MACHINE_REGISTRY.getRandomTeeIds(_getExtensionId(), 1);
-        if (teeIds.length != 1) revert TeeNotProduction();
-        address expectedTee = teeIds[0];
+        _getExtensionId();
         _confirmProductionTee(expectedTee);
 
         uint128 fee = uint128((uint256(principal) * protocolFeeBps) / 10_000);

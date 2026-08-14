@@ -134,6 +134,11 @@ The template ID, template version, input domains, selection count, threshold, ga
 
 ## VerdictV1 Binding
 
+The client supplies `expectedTee` to `createJob` after reading the TEE public
+key and before encrypting the hidden bundle. The escrow verifies that explicit
+TEE is currently PRODUCTION, stores it with the job, dispatches only to it, and
+settles only signatures recovered from it.
+
 The FCC extension ABI-encodes `VerdictV1` into signed `ActionResult.data`. Every security-critical field is repeated inside the signed verdict and checked against escrow storage:
 
 - schema version;

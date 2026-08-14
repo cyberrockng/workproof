@@ -120,6 +120,7 @@ contract RealRegistryForkTest is Test {
         vm.expectRevert(bytes("Extension ID is not set."));
         escrow.createJob(
             address(0xC0117AC706),
+            address(0x1111),
             100e6,
             uint64(block.timestamp + 1_000),
             uint64(block.timestamp + 200_000),

@@ -88,6 +88,7 @@ contract WorkProofInvariantHandler is Test {
         vm.prank(client);
         try escrow.createJob(
             contractor,
+            vm.addr(teeKey),
             principal,
             uint64(block.timestamp + 1_000),
             uint64(block.timestamp + 200_000),

@@ -118,6 +118,7 @@ contract WorkProofEscrowTest is Test {
         vm.prank(CLIENT);
         id = escrow.createJob(
             CONTRACTOR,
+            teeAddr,
             principal,
             uint64(block.timestamp + 1_000),
             uint64(block.timestamp + 200_000),
@@ -341,6 +342,7 @@ contract WorkProofEscrowTest is Test {
         vm.expectRevert(WorkProofEscrow.InvalidVerdict.selector);
         escrow.createJob(
             address(0),
+            teeAddr,
             100e6,
             uint64(block.timestamp + 1000),
             uint64(block.timestamp + 2000),
@@ -358,6 +360,7 @@ contract WorkProofEscrowTest is Test {
         vm.expectRevert(WorkProofEscrow.InvalidVerdict.selector);
         escrow.createJob(
             CONTRACTOR,
+            teeAddr,
             100e6,
             uint64(block.timestamp),
             uint64(block.timestamp + 2000),
@@ -371,6 +374,7 @@ contract WorkProofEscrowTest is Test {
         vm.expectRevert(WorkProofEscrow.InvalidVerdict.selector);
         escrow.createJob(
             CONTRACTOR,
+            teeAddr,
             100e6,
             uint64(block.timestamp + 1000),
             uint64(block.timestamp + 500),
@@ -384,6 +388,7 @@ contract WorkProofEscrowTest is Test {
         vm.expectRevert(WorkProofEscrow.InvalidVerdict.selector);
         escrow.createJob(
             CONTRACTOR,
+            teeAddr,
             100e6,
             uint64(block.timestamp + 1000),
             uint64(block.timestamp + 2000),
@@ -402,6 +407,7 @@ contract WorkProofEscrowTest is Test {
         vm.expectRevert(WorkProofEscrow.InvalidVerdict.selector);
         escrow.createJob(
             CONTRACTOR,
+            teeAddr,
             0,
             uint64(block.timestamp + 1000),
             uint64(block.timestamp + 2000),
@@ -415,6 +421,7 @@ contract WorkProofEscrowTest is Test {
         vm.expectRevert(WorkProofEscrow.InvalidVerdict.selector);
         escrow.createJob(
             CONTRACTOR,
+            teeAddr,
             100e6,
             uint64(block.timestamp + 1000),
             uint64(block.timestamp + 2000),
@@ -428,15 +435,12 @@ contract WorkProofEscrowTest is Test {
         vm.stopPrank();
     }
 
-    function testCreateJobRejectsZeroTeeResponse() external {
-        address[] memory zeroIds = new address[](1);
-        zeroIds[0] = address(0);
-        mockMachine.setNextRandomIds(zeroIds);
-
+    function testCreateJobRejectsZeroExpectedTee() external {
         vm.prank(CLIENT);
-        vm.expectRevert(WorkProofEscrow.TeeNotProduction.selector);
+        vm.expectRevert(WorkProofEscrow.InvalidVerdict.selector);
         escrow.createJob(
             CONTRACTOR,
+            address(0),
             100e6,
             uint64(block.timestamp + 1000),
             uint64(block.timestamp + 2000),
@@ -449,21 +453,20 @@ contract WorkProofEscrowTest is Test {
         );
     }
 
-    /// @dev The registry returning a different length than the requested
-    /// count (here: 2 machines for a 1-machine request) -- only reachable
-    /// via the mock's forceRawResponse escape hatch, since the normal
-    /// fallback always normalizes to the requested count.
-    function testCreateJobRejectsMultipleTeeResponse() external {
+    function testCreateJobUsesExplicitExpectedTeeDespiteRegistryRandomness() external {
+        address otherTee = vm.addr(0xC0FFEE);
         address[] memory twoIds = new address[](2);
-        twoIds[0] = teeAddr;
-        twoIds[1] = vm.addr(0xC0FFEE);
+        twoIds[0] = otherTee;
+        twoIds[1] = vm.addr(0xC0FFEF);
         mockMachine.setNextRandomIds(twoIds);
         mockMachine.setForceRawResponse(true);
+        mockMachine.setStatus(otherTee, 2);
+        mockMachine.setStatus(twoIds[1], 2);
 
         vm.prank(CLIENT);
-        vm.expectRevert(WorkProofEscrow.TeeNotProduction.selector);
-        escrow.createJob(
+        uint256 id = escrow.createJob(
             CONTRACTOR,
+            teeAddr,
             100e6,
             uint64(block.timestamp + 1000),
             uint64(block.timestamp + 2000),
@@ -474,6 +477,8 @@ contract WorkProofEscrowTest is Test {
             ENGINE_HASH,
             CIPHERTEXT_HASH
         );
+        WorkProofEscrow.Job memory j = escrow.getJob(id);
+        assertEq(j.terms.expectedTee, teeAddr);
     }
 
     function testCreateJobRejectsNonProductionTee() external {
@@ -482,6 +487,7 @@ contract WorkProofEscrowTest is Test {
         vm.expectRevert(WorkProofEscrow.TeeNotProduction.selector);
         escrow.createJob(
             CONTRACTOR,
+            teeAddr,
             100e6,
             uint64(block.timestamp + 1000),
             uint64(block.timestamp + 2000),
@@ -749,6 +755,7 @@ contract WorkProofEscrowTest is Test {
         vm.prank(CLIENT);
         id = escrow.createJob(
             CONTRACTOR,
+            teeAddr,
             principal,
             uint64(block.timestamp + 1_000),
             uint64(block.timestamp + 200_000),
@@ -1272,6 +1279,7 @@ contract WorkProofEscrowTest is Test {
         vm.expectRevert(WorkProofEscrow.IsPaused.selector);
         escrow.createJob(
             CONTRACTOR,
+            teeAddr,
             1e6,
             uint64(block.timestamp + 1000),
             uint64(block.timestamp + 2000),
@@ -1356,6 +1364,7 @@ contract WorkProofEscrowTest is Test {
             abi.encodeWithSelector(
                 WorkProofEscrow.createJob.selector,
                 CONTRACTOR,
+                teeAddr,
                 uint128(1e6),
                 uint64(block.timestamp + 1000),
                 uint64(block.timestamp + 2000),
@@ -1374,6 +1383,7 @@ contract WorkProofEscrowTest is Test {
         vm.prank(CLIENT);
         uint256 id = escrow.createJob(
             CONTRACTOR,
+            teeAddr,
             1e6,
             uint64(block.timestamp + 1000),
             uint64(block.timestamp + 2000),

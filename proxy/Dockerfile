@@ -2,13 +2,13 @@
 # so no local sibling repos are needed.
 #
 # TEE_PROXY_VERSION MUST stay aligned with the extension's Go-module pins
-# (tools/go.mod): tee-proxy v0.0.18. tee-proxy's own go.mod transitively pins
+# (tools/go.mod): tee-proxy v0.0.22. tee-proxy's own go.mod transitively pins
 # the matching tee-node and go-flare-common line, so building it with
 # `go mod download` pulls the exact governance-aware node code the extension-tee
 # image uses — no separate tee-node clone or replace directive is needed.
 # Override via build arg when bumping both sides together.
 
-ARG TEE_PROXY_VERSION=v0.0.18
+ARG TEE_PROXY_VERSION=v0.0.22
 
 # NOTE: not pinned by digest (unlike the main Dockerfile) — this is a dev convenience build.
 # For full reproducibility, pin by digest: golang:1.25.12-alpine@sha256:56961d79ea8129efddcc0b8643fd8a5416b4e6228cfd477e3fd61deb2672c587
@@ -34,7 +34,7 @@ FROM alpine:3.21
 WORKDIR /app
 
 COPY --from=builder /app/tee-proxy/main .
-COPY --from=builder /app/tee-proxy/config.example.toml ./config/config.toml
+COPY --from=builder /app/tee-proxy/config/config.example.toml ./config/config.toml
 
 RUN addgroup -g 1001 -S appgroup && \
     adduser -u 1001 -S appuser -G appgroup

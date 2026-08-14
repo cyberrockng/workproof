@@ -577,7 +577,7 @@ contract WorkProofEscrow is ReentrancyGuard {
     /// @param data ABI-encoded VerdictV1, i.e. the real ActionResult.data the FCC node returned.
     /// @param opType routing-consistency check only, never settlement authority (plan section 9 step 4).
     /// @param opCommand routing-consistency check only, never settlement authority.
-    /// @param submissionTag tee-node SubmissionTag ("submit" expected for a final result); part of the signed hash.
+    /// @param submissionTag tee-node SubmissionTag ("threshold" expected for the finalized result); part of the signed hash.
     /// @param status raw ActionResult.status; only 1 (handler completed) can ever settle.
     function settleAttempt(
         uint256 id,
@@ -609,7 +609,7 @@ contract WorkProofEscrow is ReentrancyGuard {
         if (block.timestamp > j.terms.graceEnds) revert InvalidState();
         if (status != 1) revert InvalidVerdict();
         if (opType != OP_TYPE || opCommand != OP_COMMAND) revert InvalidVerdict();
-        if (keccak256(bytes(submissionTag)) != keccak256(bytes("submit"))) revert InvalidVerdict();
+        if (keccak256(bytes(submissionTag)) != keccak256(bytes("threshold"))) revert InvalidVerdict();
         if (j.current.instructionId == bytes32(0)) revert InvalidState();
 
         VerdictV1 memory v = _decodeAndAuthenticate(data, submissionTag, status, signature, j.terms.expectedTee);

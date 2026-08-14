@@ -64,6 +64,7 @@ contract WorkProofEscrowTest is Test {
 
     uint16 constant FEE_BPS = 100; // 1%
     uint64 constant VERIFICATION_TIMEOUT = 1 hours;
+    string constant RESULT_SUBMISSION_TAG = "threshold";
 
     function setUp() external {
         // Install a mock FlareContractRegistry at the real hardcoded address
@@ -190,7 +191,9 @@ contract WorkProofEscrowTest is Test {
         returns (bytes memory signature)
     {
         bytes32 digest = FccVerdict.ethSignedHash(
-            FccVerdict.payloadHash(block.chainid, FccVerdict.actionResultHash(data, instructionId, "submit", status))
+            FccVerdict.payloadHash(
+                block.chainid, FccVerdict.actionResultHash(data, instructionId, RESULT_SUBMISSION_TAG, status)
+            )
         );
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(key, digest);
         signature = abi.encodePacked(r, s, v);
@@ -199,7 +202,7 @@ contract WorkProofEscrowTest is Test {
     function _settleWith(uint256 id, WorkProofEscrow.VerdictV1 memory v, uint256 key) internal {
         bytes memory data = abi.encode(v);
         bytes memory sig = _sign(key, data, v.id.instructionId, 1);
-        escrow.settleAttempt(id, data, opType, opCommand, "submit", 1, sig);
+        escrow.settleAttempt(id, data, opType, opCommand, RESULT_SUBMISSION_TAG, 1, sig);
     }
 
     // =======================================================================
@@ -678,7 +681,7 @@ contract WorkProofEscrowTest is Test {
     function testSettleAttemptRejectsNeverDispatchedJob() external {
         uint256 id = _createJob(100e6);
         vm.expectRevert(WorkProofEscrow.InvalidState.selector);
-        escrow.settleAttempt(id, hex"", opType, opCommand, "submit", 1, hex"");
+        escrow.settleAttempt(id, hex"", opType, opCommand, RESULT_SUBMISSION_TAG, 1, hex"");
     }
 
     /// @dev A degenerate zero instructionId from the registry is a real,
@@ -699,7 +702,7 @@ contract WorkProofEscrowTest is Test {
         assertEq(j.current.instructionId, bytes32(0));
 
         vm.expectRevert(WorkProofEscrow.InvalidState.selector);
-        escrow.settleAttempt(id, hex"", opType, opCommand, "submit", 1, hex"");
+        escrow.settleAttempt(id, hex"", opType, opCommand, RESULT_SUBMISSION_TAG, 1, hex"");
     }
 
     // =======================================================================
@@ -859,7 +862,7 @@ contract WorkProofEscrowTest is Test {
         escrow.dispatchVerification(id);
 
         vm.expectRevert(WorkProofEscrow.InvalidVerdict.selector);
-        escrow.settleAttempt(id, staleData, opType, opCommand, "submit", 1, staleSig);
+        escrow.settleAttempt(id, staleData, opType, opCommand, RESULT_SUBMISSION_TAG, 1, staleSig);
     }
 
     // =======================================================================
@@ -936,7 +939,7 @@ contract WorkProofEscrowTest is Test {
         _fullyDispatch(id);
         bytes memory data = abi.encode(_matchingVerdict(id, WorkProofEscrow.Outcome.Pass));
         vm.expectRevert(WorkProofEscrow.InvalidVerdict.selector);
-        escrow.settleAttempt(id, data, opType, opCommand, "submit", 1, hex"1234");
+        escrow.settleAttempt(id, data, opType, opCommand, RESULT_SUBMISSION_TAG, 1, hex"1234");
     }
 
     function testMalformedAbiDataReverts() external {
@@ -944,7 +947,7 @@ contract WorkProofEscrowTest is Test {
         _fullyDispatch(id);
         bytes memory garbage = hex"deadbeef";
         vm.expectRevert();
-        escrow.settleAttempt(id, garbage, opType, opCommand, "submit", 1, hex"00");
+        escrow.settleAttempt(id, garbage, opType, opCommand, RESULT_SUBMISSION_TAG, 1, hex"00");
     }
 
     function testWrongOpTypeOrCommandRejected() external {
@@ -955,9 +958,9 @@ contract WorkProofEscrowTest is Test {
         bytes memory sig = _sign(TEE_KEY, data, v.id.instructionId, 1);
 
         vm.expectRevert(WorkProofEscrow.InvalidVerdict.selector);
-        escrow.settleAttempt(id, data, bytes32("WRONG"), opCommand, "submit", 1, sig);
+        escrow.settleAttempt(id, data, bytes32("WRONG"), opCommand, RESULT_SUBMISSION_TAG, 1, sig);
         vm.expectRevert(WorkProofEscrow.InvalidVerdict.selector);
-        escrow.settleAttempt(id, data, opType, bytes32("WRONG"), "submit", 1, sig);
+        escrow.settleAttempt(id, data, opType, bytes32("WRONG"), RESULT_SUBMISSION_TAG, 1, sig);
     }
 
     function testWrongStatusRejected() external {
@@ -967,7 +970,7 @@ contract WorkProofEscrowTest is Test {
         bytes memory data = abi.encode(v);
         bytes memory sig = _sign(TEE_KEY, data, v.id.instructionId, 0);
         vm.expectRevert(WorkProofEscrow.InvalidVerdict.selector);
-        escrow.settleAttempt(id, data, opType, opCommand, "submit", 0, sig);
+        escrow.settleAttempt(id, data, opType, opCommand, RESULT_SUBMISSION_TAG, 0, sig);
     }
 
     function testWrongSubmissionTagRejected() external {
@@ -976,10 +979,10 @@ contract WorkProofEscrowTest is Test {
         WorkProofEscrow.VerdictV1 memory v = _matchingVerdict(id, WorkProofEscrow.Outcome.Pass);
         bytes memory data = abi.encode(v);
         bytes memory sig = _sign(TEE_KEY, data, v.id.instructionId, 1);
-        // signature was made over "submit"; passing "end" both fails the tag
+        // signature was made over "threshold"; passing "submit" both fails the tag
         // check AND (independently) would fail signature recovery.
         vm.expectRevert(WorkProofEscrow.InvalidVerdict.selector);
-        escrow.settleAttempt(id, data, opType, opCommand, "end", 1, sig);
+        escrow.settleAttempt(id, data, opType, opCommand, "submit", 1, sig);
     }
 
     /// @dev After any outcome (PASS/FAIL/INCONCLUSIVE) settles once, job
@@ -995,10 +998,10 @@ contract WorkProofEscrowTest is Test {
         WorkProofEscrow.VerdictV1 memory v = _matchingVerdict(id, WorkProofEscrow.Outcome.Pass);
         bytes memory data = abi.encode(v);
         bytes memory sig = _sign(TEE_KEY, data, v.id.instructionId, 1);
-        escrow.settleAttempt(id, data, opType, opCommand, "submit", 1, sig);
+        escrow.settleAttempt(id, data, opType, opCommand, RESULT_SUBMISSION_TAG, 1, sig);
 
         vm.expectRevert(WorkProofEscrow.InvalidState.selector);
-        escrow.settleAttempt(id, data, opType, opCommand, "submit", 1, sig);
+        escrow.settleAttempt(id, data, opType, opCommand, RESULT_SUBMISSION_TAG, 1, sig);
     }
 
     function testMutationRejected_specHash() external {

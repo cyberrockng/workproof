@@ -49,6 +49,7 @@ contract WorkProofInvariantHandler is Test {
 
     mapping(uint256 => bool) public everSettledPaid;
     mapping(uint256 => bool) public everSettledRefunded;
+    string constant RESULT_SUBMISSION_TAG = "threshold";
 
     constructor(
         WorkProofEscrow _escrow,
@@ -167,7 +168,9 @@ contract WorkProofInvariantHandler is Test {
 
         bytes memory data = abi.encode(v);
         bytes32 digest = FccVerdict.ethSignedHash(
-            FccVerdict.payloadHash(block.chainid, FccVerdict.actionResultHash(data, v.id.instructionId, "submit", 1))
+            FccVerdict.payloadHash(
+                block.chainid, FccVerdict.actionResultHash(data, v.id.instructionId, RESULT_SUBMISSION_TAG, 1)
+            )
         );
         (uint8 sv, bytes32 sr, bytes32 ss) = vm.sign(teeKey, digest);
         bytes memory sig = abi.encodePacked(sr, ss, sv);
@@ -175,7 +178,7 @@ contract WorkProofInvariantHandler is Test {
         uint256 contractorBefore = token.balanceOf(contractor);
         uint256 treasuryBefore = token.balanceOf(treasury);
 
-        try escrow.settleAttempt(id, data, escrow.OP_TYPE(), escrow.OP_COMMAND(), "submit", 1, sig) {
+        try escrow.settleAttempt(id, data, escrow.OP_TYPE(), escrow.OP_COMMAND(), RESULT_SUBMISSION_TAG, 1, sig) {
             if (outcome == WorkProofEscrow.Outcome.Pass) {
                 everSettledPaid[id] = true;
                 ghost_paidToContractor += token.balanceOf(contractor) - contractorBefore;

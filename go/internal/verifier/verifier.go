@@ -31,6 +31,8 @@ import (
 // a *different* engine version actually performed the verification.
 var realEngineVersionHash = keccak256([]byte(config.WorkProofEngineVersion))
 
+const workProofStateVerifying uint8 = 4
+
 // Config wires the verifier to its real dependencies. No field here is
 // ever a mock/placeholder in the production path -- only test/ doubles
 // stand in for these during local unit tests.
@@ -104,7 +106,7 @@ func (v *Verifier) Verify(ctx context.Context, instructionId [32]byte, instr typ
 	ctx, cancel := context.WithTimeout(ctx, config.AttemptTotalTimeout)
 	defer cancel()
 
-	if instr.ChainId == nil || instr.ChainId.Uint64() != v.cfg.ChainID {
+	if !chainIDMatches(instr.ChainId, v.cfg.ChainID) {
 		return types.VerdictV1{}, fail("instruction chainId %v does not match configured chain %d", instr.ChainId, v.cfg.ChainID)
 	}
 	if instr.EscrowAddress != v.cfg.EscrowAddress {
@@ -132,6 +134,10 @@ func (v *Verifier) Verify(ctx context.Context, instructionId [32]byte, instr typ
 	}
 	if err := crossCheckInstruction(instr, job); err != nil {
 		return types.VerdictV1{}, fail("instruction does not match on-chain job state: %w", err)
+	}
+	now := uint64(time.Now().Unix())
+	if now > job.Current.TimeoutAt || now > job.Terms.GraceEnds {
+		return types.VerdictV1{}, fail("instruction deadline has already passed")
 	}
 	// The routing layer determined this ActionResult corresponds to this
 	// dispatch, but never trust that without an explicit cross-check against
@@ -217,7 +223,6 @@ func (v *Verifier) Verify(ctx context.Context, instructionId [32]byte, instr typ
 	// which turns a drifted TEE clock into a safe settlement rejection
 	// (liveness), never acceptance of a falsely-timestamped verdict. See
 	// THREAT_MODEL.md "TEE clock drift" / "Residual Risks".
-	now := uint64(time.Now().Unix())
 	return types.VerdictV1{
 		Id: identity,
 		Result: types.VerdictOutcome{
@@ -261,6 +266,13 @@ func (v *Verifier) inconclusiveVerdict(instr types.WorkProofInstruction, identit
 	}, nil
 }
 
+func chainIDMatches(actual *big.Int, expected uint64) bool {
+	if actual == nil {
+		return false
+	}
+	return actual.Sign() >= 0 && actual.Cmp(new(big.Int).SetUint64(expected)) == 0
+}
+
 func verdictIdentityFrom(instr types.WorkProofInstruction, instructionId [32]byte) types.VerdictIdentity {
 	return types.VerdictIdentity{
 		SchemaVersion:     1,
@@ -277,6 +289,12 @@ func verdictIdentityFrom(instr types.WorkProofInstruction, instructionId [32]byt
 }
 
 func crossCheckInstruction(instr types.WorkProofInstruction, job workproofescrow.WorkProofEscrowJob) error {
+	if job.Settled {
+		return fmt.Errorf("job already settled")
+	}
+	if job.State != workProofStateVerifying {
+		return fmt.Errorf("job state %d is not Verifying", job.State)
+	}
 	if job.Terms.SpecHash != instr.SpecHash {
 		return fmt.Errorf("specHash mismatch")
 	}
@@ -288,6 +306,9 @@ func crossCheckInstruction(instr types.WorkProofInstruction, job workproofescrow
 	}
 	if job.Terms.EngineVersionHash != instr.EngineVersionHash {
 		return fmt.Errorf("engineVersionHash mismatch")
+	}
+	if job.Terms.GraceEnds != instr.ExpiresAt {
+		return fmt.Errorf("expiresAt mismatch")
 	}
 	if job.Current.Attempt != instr.Attempt {
 		return fmt.Errorf("attempt mismatch: on-chain %d, instruction %d", job.Current.Attempt, instr.Attempt)

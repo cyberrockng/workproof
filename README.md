@@ -9,12 +9,12 @@ Built for the Flare Summer Signal hackathon on the [official FCC extension scaff
 ## Status
 
 - **Phase 3 (production contracts)** and **Phase 4 (Go verifier)** are complete: `contracts/WorkProofEscrow.sol` resolves every Flare dependency live (FTestXRP, secure randomness, TEE registry) instead of pasting addresses; `go/internal/verifier` runs the full VERIFY flow — bundle decrypt/validate, independent on-chain re-verification, deterministic vector selection and execution, signed `VerdictV1` production.
-- **An independent audit (2026-08-09)** found four release-blocking defects and five high-severity gaps. Every finding checked against source was accurate. All nine are fixed, each with a real regression test — several confirmed load-bearing by temporarily reverting the fix and watching the test fail. Full account in [`NEW_WORK.md`](NEW_WORK.md) under "Post-audit remediation"; the corrected evidence docs are [`docs/evidence/phase3-production-contracts.md`](docs/evidence/phase3-production-contracts.md) and [`docs/evidence/phase4-go-verifier.md`](docs/evidence/phase4-go-verifier.md).
+- **Independent audit status**: source-level hardening has been applied for the August 2026 independent audit findings that can be fixed in code: bounded verification windows, late non-pass refund-pending state, HTTP body/time limits, stricter config parsing, safer relayer key handling, and fresh-clone bootstrap. Remaining submission gates are operational evidence gates: redeploy the current source to Coston2, verify explorer/source provenance, and record a role-separated demo journey.
 - **Phase 5 (Coston2 simulated-attestation integration test)** is complete on the live Coston2 FCC deployment recorded at source commit `2779d77983e0f23d586b1ed56507e9a935644951`: extension `66223`, escrow/instruction sender `0x7B984320aA969Ad6522E7c902371dD208C1760A4`, proxy `https://retention-pasta-clip.ngrok-free.dev`, TEE `0x962cf74e9673170f273576764c60dF2fc13A28aa`, registry status `2`, and successful PASS/pay, FAIL/no-pay, and refund paths. Evidence is in [`deployments/coston2.json`](deployments/coston2.json) and [`docs/evidence/demo-run.json`](docs/evidence/demo-run.json). Newer source commits include audit hardening and must be redeployed before claiming that exact bytecode is live.
 - **Simulation honesty**: this hackathon deployment uses `SIMULATED_TEE=true`/`MODE=1` with attestation `magic_pass` and platform `TEST_PLATFORM`. Flare organizers confirmed simulated TEEs are acceptable for the hackathon demo; this is not claimed as GCP AMD SEV hardware attestation.
 - **Not yet built**: a polished deployed web UI. Three Foundry invariant functions and two fuzz tests exist. Stated plainly rather than implied otherwise.
 
-Last verified checks: `./scripts/check-versions.sh`; `bash ./scripts/check-evidence-commits.sh`; `cd go && go test ./...`; `cd tools && go test ./...`; `cd relayer && npm test`; `forge test --match-contract WorkProofEscrowTest` (**89/89** local escrow tests).
+Last verified checks are listed in [`docs/evidence/AUDIT_RESPONSE.md`](docs/evidence/AUDIT_RESPONSE.md). Re-run them after any contract or verifier change.
 
 ## Architecture
 
@@ -84,8 +84,7 @@ The escrow is itself the FCC instruction sender — it calls `TeeExtensionRegist
 
 ```bash
 # One-time dependency bootstrap for a fresh clone.
-forge soldeer install
-(cd lib/flare-foundry-periphery-package && forge soldeer install)
+bash ./scripts/bootstrap.sh
 
 # Solidity: local + spike suites (no network needed)
 forge test --match-contract "WorkProofEscrowTest|FccSignatureSpikeTest"

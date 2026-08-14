@@ -7,6 +7,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"strings"
+	"time"
 )
 
 func main() {
@@ -36,5 +37,13 @@ func main() {
 	})
 
 	log.Printf("workproof gateway listening on %s, proxy=%s, cipher-dir=%s", *listen, *proxyTarget, *cipherDir)
-	log.Fatal(http.ListenAndServe(*listen, nil))
+	server := &http.Server{
+		Addr:              *listen,
+		Handler:           http.DefaultServeMux,
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       30 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       60 * time.Second,
+	}
+	log.Fatal(server.ListenAndServe())
 }

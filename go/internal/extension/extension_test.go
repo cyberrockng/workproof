@@ -3,6 +3,7 @@ package extension
 import (
 	"encoding/json"
 	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 
@@ -409,6 +410,45 @@ func TestProcessAction_InvalidDataMessage(t *testing.T) {
 		t.Errorf("expected body to mention 'decoding fixed data', got %q", bodyStr)
 	}
 	t.Logf("400 body: %s", bodyStr)
+}
+
+func TestActionHandlerRejectsWrongContentType(t *testing.T) {
+	e := &Extension{}
+	req := httptest.NewRequest(http.MethodPost, "/action", strings.NewReader("{}"))
+	req.Header.Set("Content-Type", "text/plain")
+	rec := httptest.NewRecorder()
+
+	e.actionHandler(rec, req)
+
+	if rec.Code != http.StatusUnsupportedMediaType {
+		t.Fatalf("status = %d, want %d", rec.Code, http.StatusUnsupportedMediaType)
+	}
+}
+
+func TestActionHandlerRejectsOversizedBody(t *testing.T) {
+	e := &Extension{}
+	req := httptest.NewRequest(http.MethodPost, "/action", strings.NewReader(strings.Repeat(" ", config.MaxActionBodyBytes+1)))
+	req.Header.Set("Content-Type", "application/json")
+	rec := httptest.NewRecorder()
+
+	e.actionHandler(rec, req)
+
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want %d", rec.Code, http.StatusBadRequest)
+	}
+}
+
+func TestActionHandlerRejectsTrailingJSON(t *testing.T) {
+	e := &Extension{}
+	req := httptest.NewRequest(http.MethodPost, "/action", strings.NewReader("{}{}"))
+	req.Header.Set("Content-Type", "application/json")
+	rec := httptest.NewRecorder()
+
+	e.actionHandler(rec, req)
+
+	if rec.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want %d", rec.Code, http.StatusBadRequest)
+	}
 }
 
 func contains(s, substr string) bool {

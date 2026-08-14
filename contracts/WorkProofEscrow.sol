@@ -38,7 +38,8 @@ contract WorkProofEscrow is ReentrancyGuard {
         Retryable,
         Paid,
         Cancelled,
-        Refunded
+        Refunded,
+        RefundPending
     }
 
     enum Outcome {
@@ -165,6 +166,8 @@ contract WorkProofEscrow is ReentrancyGuard {
     bytes32 public constant OP_COMMAND = bytes32("VERIFY");
 
     uint16 public constant MAX_PROTOCOL_FEE_BPS = 1_000; // 10% hard cap
+    uint64 public constant MIN_VERIFICATION_TIMEOUT = 30 seconds;
+    uint64 public constant MAX_VERIFICATION_TIMEOUT = 7 days;
     uint256 private constant FIRST_PUBLIC_EXTENSION_ID = 0x10000;
 
     IERC20 public immutable token;
@@ -174,6 +177,7 @@ contract WorkProofEscrow is ReentrancyGuard {
     RandomNumberV2Interface public immutable RANDOM_NUMBER_V2;
     address public immutable treasury;
     address public owner;
+    address public pendingOwner;
 
     uint16 public protocolFeeBps;
     bool public paused;
@@ -195,6 +199,8 @@ contract WorkProofEscrow is ReentrancyGuard {
     error RandomNotReady();
     error TeeNotProduction();
 
+    event OwnershipTransferStarted(address indexed currentOwner, address indexed pendingOwner);
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
     event JobCreated(
         uint256 indexed jobId,
         address indexed client,
@@ -342,6 +348,20 @@ contract WorkProofEscrow is ReentrancyGuard {
         protocolFeeBps = newBps;
     }
 
+    function transferOwnership(address newOwner) external onlyOwner {
+        if (newOwner == address(0)) revert ZeroAddress();
+        pendingOwner = newOwner;
+        emit OwnershipTransferStarted(owner, newOwner);
+    }
+
+    function acceptOwnership() external {
+        if (msg.sender != pendingOwner) revert NotOwner();
+        address previousOwner = owner;
+        owner = msg.sender;
+        pendingOwner = address(0);
+        emit OwnershipTransferred(previousOwner, msg.sender);
+    }
+
     // ---------------------------------------------------------------------
     // Job lifecycle
     // ---------------------------------------------------------------------
@@ -361,7 +381,8 @@ contract WorkProofEscrow is ReentrancyGuard {
     ) external whenNotPaused nonReentrant returns (uint256 id) {
         if (
             contractor == address(0) || expectedTee == address(0) || acceptBy <= block.timestamp || submitBy <= acceptBy
-                || graceEnds <= submitBy || verificationTimeout == 0 || principal == 0
+                || graceEnds <= submitBy || verificationTimeout < MIN_VERIFICATION_TIMEOUT
+                || verificationTimeout > MAX_VERIFICATION_TIMEOUT || principal == 0
         ) revert InvalidVerdict();
 
         _getExtensionId();
@@ -550,7 +571,15 @@ contract WorkProofEscrow is ReentrancyGuard {
 
         j.current.instructionId = instructionId;
         j.current.dispatchedAt = uint64(block.timestamp);
-        j.current.timeoutAt = uint64(block.timestamp) + j.terms.verificationTimeout;
+        uint256 rawTimeoutAt = block.timestamp + uint256(j.terms.verificationTimeout);
+        uint64 timeoutAt = j.terms.graceEnds;
+        if (rawTimeoutAt < j.terms.graceEnds) {
+            // forge-lint: disable-next-line(unsafe-typecast)
+            timeoutAt = uint64(rawTimeoutAt);
+        }
+        if (timeoutAt <= block.timestamp) revert Deadline();
+
+        j.current.timeoutAt = timeoutAt;
         j.state = State.Verifying;
 
         emit VerificationDispatched(id, j.current.attempt, instructionId, j.terms.expectedTee, j.current.timeoutAt);
@@ -616,11 +645,11 @@ contract WorkProofEscrow is ReentrancyGuard {
         emit AttemptSettled(id, j.current.attempt, v.result.outcome);
 
         if (v.result.outcome == Outcome.Fail) {
-            j.state = State.AwaitingResubmission;
+            j.state = block.timestamp > j.terms.submitBy ? State.RefundPending : State.AwaitingResubmission;
             return;
         }
         if (v.result.outcome == Outcome.Inconclusive) {
-            j.state = State.Retryable;
+            j.state = block.timestamp > j.terms.submitBy ? State.RefundPending : State.Retryable;
             return;
         }
 
@@ -671,6 +700,7 @@ contract WorkProofEscrow is ReentrancyGuard {
     }
 
     function _checkOutcomeBinding(Job storage j, VerdictOutcome memory vo) private view {
+        if (j.current.artifactAddress.codehash != j.current.artifactCodeHash) revert InvalidVerdict();
         if (vo.artifactCodeHash != j.current.artifactCodeHash) revert InvalidVerdict();
         if (vo.randomRound != j.current.randomRound || vo.randomValueHash != j.current.randomValueHash) {
             revert InvalidVerdict();

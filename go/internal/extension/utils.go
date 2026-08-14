@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"extension-scaffold/internal/config"
 	"fmt"
+	"io"
+	"mime"
 	"net/http"
 
 	"github.com/flare-foundation/go-flare-common/pkg/logger"
@@ -14,10 +16,24 @@ import (
 // --- In most cases, you will not need to modify this file. ---
 
 func (e *Extension) actionHandler(w http.ResponseWriter, r *http.Request) {
+	if ct := r.Header.Get("Content-Type"); ct != "" {
+		mediaType, _, err := mime.ParseMediaType(ct)
+		if err != nil || mediaType != "application/json" {
+			http.Error(w, "Content-Type must be application/json", http.StatusUnsupportedMediaType)
+			return
+		}
+	}
+
 	var action teetypes.Action
-	err := json.NewDecoder(r.Body).Decode(&action)
-	if err != nil {
+	r.Body = http.MaxBytesReader(w, r.Body, config.MaxActionBodyBytes)
+	dec := json.NewDecoder(r.Body)
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(&action); err != nil {
 		http.Error(w, fmt.Sprintf("decoding action: %v", err), http.StatusBadRequest)
+		return
+	}
+	if err := dec.Decode(&struct{}{}); err != io.EOF {
+		http.Error(w, "decoding action: trailing JSON data", http.StatusBadRequest)
 		return
 	}
 

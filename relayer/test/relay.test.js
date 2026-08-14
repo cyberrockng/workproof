@@ -125,10 +125,9 @@ test("cast args support dry-run simulation and signed sends", () => {
     "7",
     "--rpc-url",
     "https://rpc.example",
-    "--private-key",
-    privateKey,
     "--json"
   ]);
+  assert.equal(send.includes(privateKey), false);
 });
 
 test("CLI parser defaults to relay and supports recovery commands", () => {

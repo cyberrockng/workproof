@@ -36,6 +36,11 @@ const (
 	WorkProofEngineVersion = "workproof-verifier-v1"
 
 	TimeoutShutdown = 5 * time.Second
+
+	ServerReadHeaderTimeout = 5 * time.Second
+	ServerReadTimeout       = 30 * time.Second
+	ServerWriteTimeout      = 30 * time.Second
+	ServerIdleTimeout       = 60 * time.Second
 )
 
 // WorkProof resource limits (plan section 11 "Resource limits").
@@ -48,6 +53,7 @@ const (
 	AttemptTotalTimeout       = 30 * time.Second
 	CallGasCap          int64 = 2_000_000
 	MaxResponseBytes          = 8 * 1024
+	MaxActionBodyBytes        = 1 << 20
 )
 
 // Defaults.

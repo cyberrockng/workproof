@@ -42,11 +42,21 @@ func New(extensionPort, signPort int) *Extension {
 	e := &Extension{}
 
 	if config.WorkProofRPCURL != "" && config.WorkProofEscrowAddress != "" {
+		escrowAddress, err := parseRequiredAddress("WORKPROOF_ESCROW_ADDRESS", config.WorkProofEscrowAddress)
+		if err != nil {
+			logger.Errorf("workproof verifier not initialized: %v", err)
+			return e
+		}
+		randomNumberV2Addr, err := parseRequiredAddress("WORKPROOF_RANDOM_NUMBER_V2_ADDRESS", config.WorkProofRandomNumberV2Addr)
+		if err != nil {
+			logger.Errorf("workproof verifier not initialized: %v", err)
+			return e
+		}
 		v, err := verifier.New(verifier.Config{
 			ChainID:            114, // Coston2; fixed project-wide (SPEC.md targetChainId), not separately configurable
 			RPCURL:             config.WorkProofRPCURL,
-			EscrowAddress:      common.HexToAddress(config.WorkProofEscrowAddress),
-			RandomNumberV2Addr: common.HexToAddress(config.WorkProofRandomNumberV2Addr),
+			EscrowAddress:      escrowAddress,
+			RandomNumberV2Addr: randomNumberV2Addr,
 			SignPort:           signPort,
 			CiphertextHosts:    config.WorkProofCiphertextHosts,
 		})
@@ -61,8 +71,26 @@ func New(extensionPort, signPort int) *Extension {
 	mux.HandleFunc("GET /state", e.stateHandler)
 	mux.HandleFunc("POST /action", e.actionHandler)
 
-	e.Server = &http.Server{Addr: fmt.Sprintf(":%d", extensionPort), Handler: mux}
+	e.Server = &http.Server{
+		Addr:              fmt.Sprintf(":%d", extensionPort),
+		Handler:           mux,
+		ReadHeaderTimeout: config.ServerReadHeaderTimeout,
+		ReadTimeout:       config.ServerReadTimeout,
+		WriteTimeout:      config.ServerWriteTimeout,
+		IdleTimeout:       config.ServerIdleTimeout,
+	}
 	return e
+}
+
+func parseRequiredAddress(name, raw string) (common.Address, error) {
+	if !common.IsHexAddress(raw) {
+		return common.Address{}, fmt.Errorf("%s must be a 20-byte hex address", name)
+	}
+	addr := common.HexToAddress(raw)
+	if addr == (common.Address{}) {
+		return common.Address{}, fmt.Errorf("%s must not be the zero address", name)
+	}
+	return addr, nil
 }
 
 // stateHandler() structure is boilerplate but update the State field mapping to match your Extension fields.

@@ -53,7 +53,7 @@ export function normalizeProxyUrl(proxyUrl) {
   return url.toString().replace(/\/$/, "");
 }
 
-export async function fetchActionResponse({ proxyUrl, instructionId, expectedTee, fetchImpl = globalThis.fetch }) {
+export async function fetchActionResponse({ proxyUrl, instructionId, fetchImpl = globalThis.fetch }) {
   if (!BYTES32_RE.test(instructionId)) throw new Error("instruction must be a bytes32 hex string");
   const base = normalizeProxyUrl(proxyUrl);
   const res = await fetchImpl(`${base}/action/result/${instructionId}`);
@@ -65,10 +65,10 @@ export async function fetchActionResponse({ proxyUrl, instructionId, expectedTee
   } catch (error) {
     throw new Error(`proxy returned malformed JSON: ${error.message}`);
   }
-  return validateActionResponse(body, { instructionId, expectedTee });
+  return validateActionResponse(body, { instructionId });
 }
 
-export function validateActionResponse(body, { instructionId, expectedTee } = {}) {
+export function validateActionResponse(body, { instructionId } = {}) {
   if (!body || typeof body !== "object") throw new Error("action response must be an object");
   if (!body.result || typeof body.result !== "object") throw new Error("action response missing result object");
   if (!SIG_RE.test(body.signature ?? "")) throw new Error("action response missing 65-byte TEE signature");
@@ -77,7 +77,6 @@ export function validateActionResponse(body, { instructionId, expectedTee } = {}
   const expectedId = instructionId?.toLowerCase();
   if (!BYTES32_RE.test(result.id ?? "")) throw new Error("result.id must be bytes32 hex");
   if (expectedId && result.id.toLowerCase() !== expectedId) throw new Error("result.id does not match instruction");
-  if (expectedTee && !ADDRESS_RE.test(expectedTee)) throw new Error("expected TEE must be an address");
   if (result.submissionTag !== WORKPROOF_SUBMISSION_TAG) {
     throw new Error(`result.submissionTag must be ${WORKPROOF_SUBMISSION_TAG}`);
   }
@@ -102,18 +101,13 @@ export function validateActionResponse(body, { instructionId, expectedTee } = {}
     submissionTag: result.submissionTag,
     status: result.status,
     signature: body.signature,
-    proxySignature: body.proxySignature,
-    async assertExpectedTee() {
-      // The on-chain escrow is the settlement authority for the TEE signature.
-      // This hook still catches malformed operator input before a transaction is built.
-    }
+    proxySignature: body.proxySignature
   };
 }
 
 export async function pollActionResponse({
   proxyUrl,
   instructionId,
-  expectedTee,
   timeoutMs = 10 * 60 * 1000,
   initialIntervalMs = 2_000,
   maxIntervalMs = 30_000,
@@ -125,8 +119,7 @@ export async function pollActionResponse({
   let interval = initialIntervalMs;
   for (;;) {
     try {
-      const action = await fetchActionResponse({ proxyUrl, instructionId, expectedTee, fetchImpl });
-      await action.assertExpectedTee?.();
+      const action = await fetchActionResponse({ proxyUrl, instructionId, fetchImpl });
       return action;
     } catch (error) {
       if (!(error instanceof PendingResultError)) throw error;
@@ -155,20 +148,21 @@ export function castArgsForCall({ escrow, signature, args, rpcUrl, privateKey, d
   if (!ADDRESS_RE.test(escrow ?? "")) throw new Error("missing or invalid escrow address");
   if (!dryRun && !privateKey) throw new Error("missing relayer private key");
   const base = dryRun ? ["call", escrow, signature] : ["send", escrow, signature];
-  const flags = dryRun ? ["--rpc-url", rpcUrl] : ["--rpc-url", rpcUrl, "--private-key", privateKey, "--json"];
+  const flags = dryRun ? ["--rpc-url", rpcUrl] : ["--rpc-url", rpcUrl, "--json"];
   return [...base, ...args.map(String), ...flags];
 }
 
 export async function sendContractCall({ rpcUrl, privateKey, escrow, signature, args, dryRun = false, spawnImpl = spawn }) {
   const castArgs = castArgsForCall({ escrow, signature, args, rpcUrl, privateKey, dryRun });
-  const { stdout } = await runCast(castArgs, { spawnImpl });
+  const envOverrides = dryRun ? {} : { ETH_PRIVATE_KEY: privateKey };
+  const { stdout } = await runCast(castArgs, { spawnImpl, env: envOverrides });
   if (dryRun) return { dryRun: true, stdout };
   return { dryRun: false, hash: parseCastTxHash(stdout), stdout };
 }
 
-export function runCast(args, { spawnImpl = spawn } = {}) {
+export function runCast(args, { spawnImpl = spawn, env = {} } = {}) {
   return new Promise((resolve, reject) => {
-    const child = spawnImpl("cast", args, { stdio: ["ignore", "pipe", "pipe"] });
+    const child = spawnImpl("cast", args, { stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, ...env } });
     let stdout = "";
     let stderr = "";
     child.stdout?.on("data", (chunk) => {
@@ -226,14 +220,16 @@ function env(name, fallback = undefined) {
 }
 
 function privateKeyFromEnv() {
-  return env("WORKPROOF_RELAYER_PRIVATE_KEY") || env("RELAYER_PRIVATE_KEY") || env("PROXY_PRIVATE_KEY") || env("DEPLOYMENT_PRIVATE_KEY");
+  return env("WORKPROOF_RELAYER_PRIVATE_KEY") || env("RELAYER_PRIVATE_KEY");
 }
 
 export async function runCli(argv = process.argv.slice(2)) {
   const { command, args } = parseArgs(argv);
   const rpcUrl = args.rpc || env("WORKPROOF_RPC_URL") || env("CHAIN_URL") || COSTON2_CHAIN.rpcUrls.default.http[0];
   const escrow = args.escrow || env("WORKPROOF_ESCROW_ADDRESS");
-  const privateKey = args["private-key"] || privateKeyFromEnv();
+  if (args["private-key"]) throw new Error("do not pass private keys in process arguments; use WORKPROOF_RELAYER_PRIVATE_KEY");
+  if (args["expected-tee"]) throw new Error("expected-tee preflight is not supported; on-chain settlement verifies the pinned TEE signer");
+  const privateKey = privateKeyFromEnv();
   const dryRun = Boolean(args.dryRun);
 
   if (command === "relay") {
@@ -243,7 +239,6 @@ export async function runCli(argv = process.argv.slice(2)) {
     const action = await pollActionResponse({
       proxyUrl: args.proxy || env("WORKPROOF_PROXY_URL"),
       instructionId,
-      expectedTee: args["expected-tee"],
       timeoutMs: Number(args["timeout-ms"] || 10 * 60 * 1000),
       initialIntervalMs: Number(args["interval-ms"] || 2_000),
       maxIntervalMs: Number(args["max-interval-ms"] || 30_000),

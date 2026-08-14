@@ -308,6 +308,29 @@ contract WorkProofEscrowTest is Test {
         escrow.setProtocolFee(0);
     }
 
+    function testOwnershipTransferIsTwoStep() external {
+        address newOwner = address(0xA11CE);
+
+        vm.expectRevert(WorkProofEscrow.ZeroAddress.selector);
+        escrow.transferOwnership(address(0));
+
+        escrow.transferOwnership(newOwner);
+        assertEq(escrow.pendingOwner(), newOwner);
+        assertEq(escrow.owner(), address(this));
+
+        vm.prank(CONTRACTOR);
+        vm.expectRevert(WorkProofEscrow.NotOwner.selector);
+        escrow.acceptOwnership();
+
+        vm.prank(newOwner);
+        escrow.acceptOwnership();
+        assertEq(escrow.owner(), newOwner);
+        assertEq(escrow.pendingOwner(), address(0));
+
+        vm.prank(newOwner);
+        escrow.setProtocolFee(0);
+    }
+
     function testSetProtocolFeeCappedAndAppliesOnlyToFutureJobs() external {
         uint256 id1 = _createJob(100e6);
         WorkProofEscrow.Job memory j1 = escrow.getJob(id1);
@@ -427,6 +450,42 @@ contract WorkProofEscrowTest is Test {
             uint64(block.timestamp + 2000),
             uint64(block.timestamp + 3000),
             0,
+            SPEC_HASH,
+            BUNDLE_HASH,
+            ENGINE_HASH,
+            CIPHERTEXT_HASH
+        );
+        vm.stopPrank();
+    }
+
+    function testCreateJobRejectsTimeoutBelowMinimumOrAboveMaximum() external {
+        uint64 tooShort = escrow.MIN_VERIFICATION_TIMEOUT() - 1;
+        uint64 tooLong = escrow.MAX_VERIFICATION_TIMEOUT() + 1;
+
+        vm.startPrank(CLIENT);
+        vm.expectRevert(WorkProofEscrow.InvalidVerdict.selector);
+        escrow.createJob(
+            CONTRACTOR,
+            teeAddr,
+            100e6,
+            uint64(block.timestamp + 1000),
+            uint64(block.timestamp + 2000),
+            uint64(block.timestamp + 3000),
+            tooShort,
+            SPEC_HASH,
+            BUNDLE_HASH,
+            ENGINE_HASH,
+            CIPHERTEXT_HASH
+        );
+        vm.expectRevert(WorkProofEscrow.InvalidVerdict.selector);
+        escrow.createJob(
+            CONTRACTOR,
+            teeAddr,
+            100e6,
+            uint64(block.timestamp + 1000),
+            uint64(block.timestamp + 2000),
+            uint64(block.timestamp + 3000),
+            tooLong,
             SPEC_HASH,
             BUNDLE_HASH,
             ENGINE_HASH,
@@ -776,9 +835,9 @@ contract WorkProofEscrowTest is Test {
         uint256 id = _createJobWithLateTimeout(100e6);
         _fullyDispatch(id);
         WorkProofEscrow.Job memory j0 = escrow.getJob(id);
-        // Confirm the scenario is real: timeoutAt must genuinely outlive
-        // graceEnds, or this test would not exercise the bug at all.
-        assertGt(j0.current.timeoutAt, j0.terms.graceEnds);
+        // The configured timeout may exceed the remaining grace window, but
+        // dispatch must clamp the live timeout to the client's refund boundary.
+        assertEq(j0.current.timeoutAt, j0.terms.graceEnds);
 
         vm.warp(uint256(j0.terms.graceEnds) + 1);
         WorkProofEscrow.VerdictV1 memory v = _matchingVerdict(id, WorkProofEscrow.Outcome.Pass);
@@ -892,6 +951,17 @@ contract WorkProofEscrowTest is Test {
         assertEq(token.balanceOf(TREASURY) - treasuryBefore, 1e6);
     }
 
+    function testSettlementRejectsArtifactCodeChangedAfterSubmission() external {
+        uint256 id = _createJob(100e6);
+        _fullyDispatch(id);
+
+        vm.etch(artifact, address(token).code);
+
+        WorkProofEscrow.VerdictV1 memory v = _matchingVerdict(id, WorkProofEscrow.Outcome.Pass);
+        vm.expectRevert(WorkProofEscrow.InvalidVerdict.selector);
+        _settleWith(id, v, TEE_KEY);
+    }
+
     function testOutcomeFailMovesNoBalance() external {
         uint256 id = _createJob(100e6);
         _fullyDispatch(id);
@@ -917,6 +987,34 @@ contract WorkProofEscrowTest is Test {
         WorkProofEscrow.Job memory j = escrow.getJob(id);
         assertEq(uint8(j.state), uint8(WorkProofEscrow.State.Retryable));
         assertEq(token.balanceOf(CONTRACTOR), before);
+    }
+
+    function testLateFailAfterSubmitDeadlineMovesToRefundPending() external {
+        uint256 id = _createJobWithLateTimeout(100e6);
+        _fullyDispatch(id);
+        WorkProofEscrow.Job memory before = escrow.getJob(id);
+        vm.warp(uint256(before.terms.submitBy) + 1);
+
+        WorkProofEscrow.VerdictV1 memory v = _matchingVerdict(id, WorkProofEscrow.Outcome.Fail);
+        _settleWith(id, v, TEE_KEY);
+
+        WorkProofEscrow.Job memory j = escrow.getJob(id);
+        assertEq(uint8(j.state), uint8(WorkProofEscrow.State.RefundPending));
+        assertFalse(j.settled);
+    }
+
+    function testLateInconclusiveAfterSubmitDeadlineMovesToRefundPending() external {
+        uint256 id = _createJobWithLateTimeout(100e6);
+        _fullyDispatch(id);
+        WorkProofEscrow.Job memory before = escrow.getJob(id);
+        vm.warp(uint256(before.terms.submitBy) + 1);
+
+        WorkProofEscrow.VerdictV1 memory v = _matchingVerdict(id, WorkProofEscrow.Outcome.Inconclusive);
+        _settleWith(id, v, TEE_KEY);
+
+        WorkProofEscrow.Job memory j = escrow.getJob(id);
+        assertEq(uint8(j.state), uint8(WorkProofEscrow.State.RefundPending));
+        assertFalse(j.settled);
     }
 
     function testResubmissionAfterFailThenPassPaysOnce() external {

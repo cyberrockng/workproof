@@ -70,3 +70,4 @@ DEPLOYMENT.md
 
 config/**/*.log
 config/register-tee.state
+.vercel

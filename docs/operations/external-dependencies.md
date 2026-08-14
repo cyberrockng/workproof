@@ -1,28 +1,29 @@
 # External Dependencies
 
-Status: open — 5 of 7 confirmed, 2 still pending past the original deadline.
-**Escalation deadline (2026-08-09) has arrived; the remaining Phase 5 blocker is
-the Coston2 FTDC availability-check proof not appearing on the normal proxy.**
-Deadline: 2026-08-08 12:00 WAT (passed)
+Status: mostly closed for the hackathon submission. Phase 5 is complete on
+Coston2 with simulated attestation. Remaining items are submission operations
+and post-hackathon production hardening, not code blockers.
 
-This file tracks dependencies that cannot be completed from code alone. Do not mark WorkProof green until the required external evidence is attached or linked.
+This file tracks dependencies that cannot be completed from source code alone.
+Do not commit private keys, database credentials, VPN profiles, bearer tokens,
+plaintext hidden vectors, or unredacted logs.
 
-| Dependency | Owner | Required evidence | Status | Deadline |
-|---|---|---|---|---|
-| DoraHacks project registration | Product | Project URL and team confirmation | **Confirmed 2026-08-08** (user-reported; project URL/team confirmation not yet attached here) | 2026-08-08 12:00 WAT |
-| Deployer/client/contractor/treasury/relayer wallets | Operations | Public addresses only; no private keys | **Confirmed 2026-08-12** — addresses generated 2026-08-09 (keys held locally in gitignored `.env.coston2`, never committed) and funded; see table below. | 2026-08-08 12:00 WAT |
-| C2FLR and FTestXRP test funds | Operations | Faucet or transfer transaction links | **Confirmed 2026-08-12** — deployer, client, contractor, treasury, and relayer each have 100 C2FLR and 10 FTestXRP by live Coston2 RPC. | 2026-08-08 12:00 WAT |
-| Coston2 indexer credentials/path | Operations | Sanitized connectivity result, no credentials | **Confirmed 2026-08-12 via fallback path** — Flare-provided hosted DB values were applied locally but `35.241.249.150:3306` refused/timed out from this network. WorkProof is running against a self-hosted `flare-system-c-chain-indexer` MySQL at `host.docker.internal:3306`, using Coston2 RPC from the Flare DevHub-listed QuickNode endpoint. `/health` returns 200 and `ext-proxy /info` is live. | 2026-08-08 12:00 WAT |
-| GCP Confidential Space AMD SEV operator | Operations | Written owner confirmation and deployment handoff path | Pending — **re-scoped: not required for Phase 5.** Phase 5 runs `SIMULATED_TEE=true`/container `MODE=1` (`WORKPROOF_EXECUTION_PLAN.md:1035-1036`), no real hardware involved. Only actually blocks Phase 7 ("deploy real FCC hardware"). | Needed before Phase 7 |
-| Stable HTTPS proxy route to port 6664 | Operations | Domain, TLS route, and uptime plan | **Confirmed 2026-08-13** — reserved ngrok domain `https://retention-pasta-clip.ngrok-free.dev` reaches the extension proxy `/info` and returns the WorkProof extension ID. | Needed before TEE registration |
-| Flare support contact path | Product | Telegram/support thread link or summary | Pending — now needed for the Coston2 FTDC availability-check 404 if a fresh request also fails. | 2026-08-08 12:00 WAT |
+| Dependency | Owner | Required evidence | Status |
+|---|---|---|---|
+| DoraHacks project registration | Product | Project URL and team confirmation | **External/account task** — user reported registration existed, but final submission receipt is not stored in this repo. |
+| Deployer/client/contractor/treasury/relayer wallets | Operations | Public addresses only; no private keys | **Confirmed 2026-08-12** — addresses generated locally and kept in gitignored `.env.coston2`; public addresses are below. |
+| C2FLR and FTestXRP test funds | Operations | Faucet or transfer evidence | **Confirmed 2026-08-12** — deployer, client, contractor, treasury, and relayer each had 100 C2FLR and 10 FTestXRP by live Coston2 RPC. |
+| Coston2 indexer credentials/path | Operations | Sanitized connectivity result, no credentials | **Resolved 2026-08-14** — ext-proxy is using the Flare-provided shared Coston2 indexer DB. Credentials are intentionally not recorded here. |
+| Stable HTTPS proxy route to port 6664 | Operations | Domain, TLS route, and uptime plan | **Confirmed 2026-08-14** — reserved ngrok domain `https://retention-pasta-clip.ngrok-free.dev` reaches `/info` through the WorkProof gateway. |
+| FCC machine registration and availability | Engineering | Extension ID, TEE ID, status, instruction IDs | **Confirmed 2026-08-14** — extension `66223`, TEE `0x962cf74e9673170f273576764c60dF2fc13A28aa`, registry status `2`, availability proof obtained. |
+| GCP Confidential Space AMD SEV operator | Operations | Real hardware attestation and image handoff | **Deferred** — organizers confirmed simulated TEE is acceptable for the hackathon demo. Real hardware attestation remains Phase 7/post-hackathon work. |
+| Web UI and demo video | Product | Public URL/video link | **Partially complete** — no polished deployed web UI is recorded in this repo. The repository now contains live FCC evidence and CLI demo artifacts; video/upload must be completed through the user's accounts. |
 
-## Generated wallets (public addresses only — 2026-08-09)
+## Generated Wallets
 
-Real Coston2-format keypairs generated locally via `cast wallet new --json`,
-each validated against `^0x[0-9a-fA-F]{40}$`/`^0x[0-9a-fA-F]{64}$` before use
-(not hand-transcribed). Private keys live only in the gitignored
-`.env.coston2` at the repo root — never in this file, never committed.
+Real Coston2-format keypairs were generated locally via `cast wallet new --json`
+and validated before use. Private keys live only in gitignored local environment
+files and must never be committed.
 
 | Role | Address |
 |---|---|
@@ -42,67 +43,30 @@ Funding status checked against live Coston2 RPC on 2026-08-12:
 | Treasury | 100 | 10000000 |
 | Relayer | 100 | 10000000 |
 
-The deployer now has C2FLR for gas
-(`pre-build.sh` now deploys the real `WorkProofEscrow` + registers the
-extension — the pipeline previously deployed the scaffold's sample
-`HelloWorldInstructionSender` instead, a real bug found and fixed during
-audit remediation, see `NEW_WORK.md` "Post-audit remediation"); the client
-additionally needs FTestXRP to fund a WorkProof job.
+## Current Phase 5 Status
 
-`.env.coston2` also sets `WORKPROOF_TREASURY` (the Treasury address above)
-and `WORKPROOF_RPC_URL`/`WORKPROOF_RANDOM_NUMBER_V2_ADDR` for the Go
-extension; `pre-build.sh` fills in `WORKPROOF_ESCROW_ADDRESS` automatically
-once deployment succeeds. Re-ran `pre-build.sh` for real against live
-Coston2 after this fix: it now resolves the real `FlareTeeManager` diamond
-and the configured treasury/fee correctly and fails at the same known
-funding blocker (0 wei balance) — confirming it never touches HelloWorld.
+Phase 5 is complete on Coston2:
 
-## Current Phase 5 status
+- `scripts/pre-build.sh` deployed and registered the current WorkProof escrow
+  as extension `66223`.
+- `scripts/post-build.sh` completed after the gateway was fixed to forward
+  provider `POST /instruction` traffic to ext-proxy and ext-proxy was rebuilt
+  on tee-proxy `v0.0.22`.
+- The live `/info` endpoint returns chain ID `114`, extension `66223`,
+  simulated attestation `magic_pass`, platform `TEST_PLATFORM`, code hash
+  `0x194844cf417dde867073e5ab7199fa4d21fd82b5dbe2bdea8b3d7fc18d10fdc2`,
+  and signing policy `5938` at the last check.
+- `getTeeMachineStatus(0x962cf74e9673170f273576764c60dF2fc13A28aa)` returned
+  `2`.
+- PASS/pay, FAIL/no-pay, and refund evidence is recorded in
+  [`../../deployments/coston2.json`](../../deployments/coston2.json) and
+  [`../evidence/demo-run.json`](../evidence/demo-run.json).
 
-Funding is solved. `scripts/pre-build.sh` succeeded on Coston2 on 2026-08-12:
-`WorkProofEscrow` is deployed at `0x62D7AFE78bC7D8E1D8266C8C248C7Cdb35ad4EFc`
-and registered as extension
-`0x0000000000000000000000000000000000000000000000000000000000010281`
-(decimal 66177). Public deployment evidence is recorded in
-`deployments/coston2.json`.
+## Current Open Items
 
-Service startup now works through Docker Desktop from WSL by calling the Windows
-Docker CLI. The first hosted-indexer attempt failed after applying the supplied
-credentials because `35.241.249.150:3306` refused/timed out from this network.
-The current working path is a local self-hosted C-chain indexer backed by
-MySQL on `host.docker.internal:3306`. It initially lagged on the official public
-RPC, then recovered after switching to the Flare DevHub-listed public QuickNode
-Coston2 endpoint and smaller commit batches.
-
-As of 2026-08-13, the stable ngrok endpoint
-`https://retention-pasta-clip.ngrok-free.dev/info` returns the WorkProof
-extension ID, Coston2 chain ID 114, and simulated attestation `magic_pass`.
-The old `trycloudflare.com` smoke-test tunnel was stopped and must **not** be
-used for on-chain TEE registration.
-
-`scripts/post-build.sh` now partially succeeds:
-
-- Step 1 (`allow-tee-version`) succeeded for code hash
-  `0x194844cf417dde867073e5ab7199fa4d21fd82b5dbe2bdea8b3d7fc18d10fdc2`.
-- Step 2 (`set-governance`) succeeded for governance hash
-  `0xec29826578cec3cf256b8254484fa7faa3609dd00991a6c3628885c5d93a1b7d`.
-- Step 3 (`register-tee`) reached saved state `rRa`: pre-register, fresh TEE
-  attestation request, and FTDC availability-check request were all sent.
-
-The remaining external blocker for end-to-end Phase 5 is:
-
-1. **FTDC availability-check result** — the documented Coston2 normal proxy
-   `https://tee-proxy-coston2-1.flare.rocks` stayed reachable and policy-consistent
-   with on-chain reward epoch 5932, but `/action/result/<instruction>` returned
-   `404 not found` for availability-check instruction
-   `0xab0c8151cccaa60d1a0a5166567b85073ec80c69a12e3014774ddb4a2113bafb`
-   after several minutes of polling. `config/register-tee.state` preserves the
-   resumable state; if the proof appears, resume only the promotion step with
-   `REGISTER_TEE_COMMAND=p` and `-resume`.
-
-## Rules
-
-- Never commit private keys, credentials, VPN profiles, bearer tokens, plaintext hidden vectors, or unredacted logs.
-- Test indexer reachability without printing the URL if it embeds credentials.
-- Record only public addresses and transaction links for wallet/funding evidence.
-- Escalate if indexer path or GCP hardware access is not confirmed by 2026-08-09.
+1. Keep the ngrok tunnel and local gateway/proxy stack running through judging
+   if a live endpoint is desired.
+2. Record and publish the demo video from the evidence flow.
+3. Complete the DoraHacks account-level submission and store the receipt or URL.
+4. After the hackathon, repeat Phase 7 on real GCP Confidential Space hardware
+   before making any production hardware-attestation claim.

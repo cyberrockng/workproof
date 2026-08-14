@@ -7,4 +7,5 @@ Expected files during execution:
 - `toolchain.txt`: sanitized preflight command output.
 - `deployment-manifest.example.json`: manifest shape before live Coston2 values exist.
 - `demo-evidence.example.json`: manifest shape for FAIL, PASS, and REFUND flows.
-- `RELEASE_SIGNOFF.md`: final release sign-off after all P0 gates pass.
+- `demo-run.json`: live Coston2 Phase 5 PASS/pay, FAIL/no-pay, and refund evidence.
+- `RELEASE_SIGNOFF.md`: final release sign-off after all P0 gates pass or the remaining limitations are explicitly accepted.

@@ -10,10 +10,11 @@ Built for the Flare Summer Signal hackathon on the [official FCC extension scaff
 
 - **Phase 3 (production contracts)** and **Phase 4 (Go verifier)** are complete: `contracts/WorkProofEscrow.sol` resolves every Flare dependency live (FTestXRP, secure randomness, TEE registry) instead of pasting addresses; `go/internal/verifier` runs the full VERIFY flow — bundle decrypt/validate, independent on-chain re-verification, deterministic vector selection and execution, signed `VerdictV1` production.
 - **An independent audit (2026-08-09)** found four release-blocking defects and five high-severity gaps. Every finding checked against source was accurate. All nine are fixed, each with a real regression test — several confirmed load-bearing by temporarily reverting the fix and watching the test fail. Full account in [`NEW_WORK.md`](NEW_WORK.md) under "Post-audit remediation"; the corrected evidence docs are [`docs/evidence/phase3-production-contracts.md`](docs/evidence/phase3-production-contracts.md) and [`docs/evidence/phase4-go-verifier.md`](docs/evidence/phase4-go-verifier.md).
-- **Phase 5 (Coston2 simulated-attestation integration test)** is prepared but not run: deployment tooling, wallets, and config are staged and verified against live Coston2 up to the point of a real funding requirement. Two external blockers remain — a funded deployer wallet and Coston2 indexer DB credentials, neither obtainable from code alone. Tracked honestly in [`docs/operations/external-dependencies.md`](docs/operations/external-dependencies.md).
-- **Not yet built**: the relayer, a web UI, and 0 Foundry invariant functions (2 fuzz tests exist). Stated plainly rather than implied otherwise.
+- **Phase 5 (Coston2 simulated-attestation integration test)** is complete on the current live Coston2 FCC deployment: extension `66223`, escrow/instruction sender `0x7B984320aA969Ad6522E7c902371dD208C1760A4`, proxy `https://retention-pasta-clip.ngrok-free.dev`, TEE `0x962cf74e9673170f273576764c60dF2fc13A28aa`, registry status `2`, and successful PASS/pay, FAIL/no-pay, and refund paths. Evidence is in [`deployments/coston2.json`](deployments/coston2.json) and [`docs/evidence/demo-run.json`](docs/evidence/demo-run.json).
+- **Simulation honesty**: this hackathon deployment uses `SIMULATED_TEE=true`/`MODE=1` with attestation `magic_pass` and platform `TEST_PLATFORM`. Flare organizers confirmed simulated TEEs are acceptable for the hackathon demo; this is not claimed as GCP AMD SEV hardware attestation.
+- **Not yet built**: a polished web UI and 0 Foundry invariant functions (2 fuzz tests exist). Stated plainly rather than implied otherwise.
 
-Test suite as of the last verified run: **102/102 Solidity tests** (85 local + 10 FCC signature-chain spike + 7 against a real live Coston2 fork) and **60 Go tests**, all green, race-clean.
+Last verified checks: `./scripts/check-versions.sh`; `cd go && go test ./cmd/workproof-gateway ./cmd/workproof-phase5`; `cd tools && go test ./...`; `forge test --match-contract WorkProofEscrowTest` (**85/85** local escrow tests).
 
 ## Architecture
 
@@ -99,7 +100,7 @@ cd go && go build ./... && gofmt -l . && go vet ./... && go test ./... -race -co
 ./scripts/test-conformance.sh go
 ```
 
-Deploying to Coston2 (`./scripts/pre-build.sh`) needs `DEPLOYMENT_PRIVATE_KEY` (funded) and `WORKPROOF_TREASURY` set — see [`docs/operations/external-dependencies.md`](docs/operations/external-dependencies.md) for current funding/indexer status before attempting it.
+Deploying to Coston2 (`./scripts/pre-build.sh`) needs `DEPLOYMENT_PRIVATE_KEY` (funded) and `WORKPROOF_TREASURY` set. The current live hackathon deployment is recorded in [`deployments/coston2.json`](deployments/coston2.json); operational caveats and remaining non-code items are tracked in [`docs/operations/external-dependencies.md`](docs/operations/external-dependencies.md).
 
 ## Documentation map
 
@@ -110,6 +111,7 @@ Deploying to Coston2 (`./scripts/pre-build.sh`) needs `DEPLOYMENT_PRIVATE_KEY` (
 | [NEW_WORK.md](NEW_WORK.md) | Everything WorkProof added on top of the scaffold, phase by phase, including every real bug found and fixed |
 | [docs/evidence/phase3-production-contracts.md](docs/evidence/phase3-production-contracts.md) | Contract test suites, coverage, and post-audit corrections |
 | [docs/evidence/phase4-go-verifier.md](docs/evidence/phase4-go-verifier.md) | Verifier test coverage, cross-language ABI proofs, and post-audit corrections |
+| [docs/evidence/demo-run.json](docs/evidence/demo-run.json) | Coston2 PASS, FAIL/no-pay, and refund transaction evidence |
 | [docs/operations/external-dependencies.md](docs/operations/external-dependencies.md) | What's blocked on funding/credentials vs. what's just not built yet |
 | [REPRODUCIBILITY.md](REPRODUCIBILITY.md) | What the Go build actually guarantees |
 | [docs/extension-contract.md](docs/extension-contract.md) | The normative FCC wire/container contract (scaffold-authored, still binding) |

@@ -32,12 +32,12 @@ import (
 
 const (
 	defaultPrincipalWei = int64(1_000)
-	feeWei             = int64(1_000_000_000)
+	feeWei              = int64(1_000_000_000)
 )
 
 var (
-	erc20ABI = mustABI(`[{"type":"function","name":"approve","inputs":[{"name":"spender","type":"address"},{"name":"amount","type":"uint256"}],"outputs":[{"name":"","type":"bool"}],"stateMutability":"nonpayable"},{"type":"function","name":"balanceOf","inputs":[{"name":"account","type":"address"}],"outputs":[{"name":"","type":"uint256"}],"stateMutability":"view"},{"type":"function","name":"allowance","inputs":[{"name":"owner","type":"address"},{"name":"spender","type":"address"}],"outputs":[{"name":"","type":"uint256"}],"stateMutability":"view"}]`)
-	escrowABI = mustABI(`[{"type":"function","name":"acceptJob","inputs":[{"name":"id","type":"uint256"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"createJob","inputs":[{"name":"contractor","type":"address"},{"name":"principal","type":"uint128"},{"name":"acceptBy","type":"uint64"},{"name":"submitBy","type":"uint64"},{"name":"graceEnds","type":"uint64"},{"name":"verificationTimeout","type":"uint64"},{"name":"specHash","type":"bytes32"},{"name":"privateBundleHash","type":"bytes32"},{"name":"engineVersionHash","type":"bytes32"},{"name":"ciphertextHash","type":"bytes32"}],"outputs":[{"name":"id","type":"uint256"}],"stateMutability":"nonpayable"},{"type":"function","name":"dispatchVerification","inputs":[{"name":"id","type":"uint256"}],"outputs":[],"stateMutability":"payable"},{"type":"function","name":"getJob","inputs":[{"name":"id","type":"uint256"}],"outputs":[{"name":"","type":"tuple","components":[{"name":"terms","type":"tuple","components":[{"name":"client","type":"address"},{"name":"contractor","type":"address"},{"name":"expectedTee","type":"address"},{"name":"principal","type":"uint128"},{"name":"fee","type":"uint128"},{"name":"createdAt","type":"uint64"},{"name":"acceptBy","type":"uint64"},{"name":"submitBy","type":"uint64"},{"name":"graceEnds","type":"uint64"},{"name":"verificationTimeout","type":"uint64"},{"name":"specHash","type":"bytes32"},{"name":"privateBundleHash","type":"bytes32"},{"name":"engineVersionHash","type":"bytes32"},{"name":"ciphertextHash","type":"bytes32"}]},{"name":"current","type":"tuple","components":[{"name":"attempt","type":"uint64"},{"name":"artifactAddress","type":"address"},{"name":"artifactBlock","type":"uint256"},{"name":"artifactCodeHash","type":"bytes32"},{"name":"targetRound","type":"uint256"},{"name":"randomRound","type":"uint256"},{"name":"randomValueHash","type":"bytes32"},{"name":"randomLocked","type":"bool"},{"name":"instructionId","type":"bytes32"},{"name":"dispatchedAt","type":"uint64"},{"name":"timeoutAt","type":"uint64"}]},{"name":"state","type":"uint8"},{"name":"settled","type":"bool"}]}],"stateMutability":"view"},{"type":"function","name":"lockRandomness","inputs":[{"name":"id","type":"uint256"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"nextJobId","inputs":[],"outputs":[{"name":"","type":"uint256"}],"stateMutability":"view"},{"type":"function","name":"protocolFeeBps","inputs":[],"outputs":[{"name":"","type":"uint16"}],"stateMutability":"view"},{"type":"function","name":"settleAttempt","inputs":[{"name":"id","type":"uint256"},{"name":"data","type":"bytes"},{"name":"opType","type":"bytes32"},{"name":"opCommand","type":"bytes32"},{"name":"submissionTag","type":"string"},{"name":"status","type":"uint8"},{"name":"signature","type":"bytes"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"submitAttempt","inputs":[{"name":"id","type":"uint256"},{"name":"artifactAddress","type":"address"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"token","inputs":[],"outputs":[{"name":"","type":"address"}],"stateMutability":"view"},{"type":"function","name":"treasury","inputs":[],"outputs":[{"name":"","type":"address"}],"stateMutability":"view"},{"type":"event","name":"VerificationDispatched","inputs":[{"name":"jobId","type":"uint256","indexed":true},{"name":"attempt","type":"uint64","indexed":true},{"name":"instructionId","type":"bytes32","indexed":false},{"name":"expectedTee","type":"address","indexed":false},{"name":"timeoutAt","type":"uint64","indexed":false}],"anonymous":false}]`)
+	erc20ABI  = mustABI(`[{"type":"function","name":"approve","inputs":[{"name":"spender","type":"address"},{"name":"amount","type":"uint256"}],"outputs":[{"name":"","type":"bool"}],"stateMutability":"nonpayable"},{"type":"function","name":"balanceOf","inputs":[{"name":"account","type":"address"}],"outputs":[{"name":"","type":"uint256"}],"stateMutability":"view"},{"type":"function","name":"allowance","inputs":[{"name":"owner","type":"address"},{"name":"spender","type":"address"}],"outputs":[{"name":"","type":"uint256"}],"stateMutability":"view"}]`)
+	escrowABI = mustABI(`[{"type":"function","name":"acceptJob","inputs":[{"name":"id","type":"uint256"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"createJob","inputs":[{"name":"contractor","type":"address"},{"name":"principal","type":"uint128"},{"name":"acceptBy","type":"uint64"},{"name":"submitBy","type":"uint64"},{"name":"graceEnds","type":"uint64"},{"name":"verificationTimeout","type":"uint64"},{"name":"specHash","type":"bytes32"},{"name":"privateBundleHash","type":"bytes32"},{"name":"engineVersionHash","type":"bytes32"},{"name":"ciphertextHash","type":"bytes32"}],"outputs":[{"name":"id","type":"uint256"}],"stateMutability":"nonpayable"},{"type":"function","name":"dispatchVerification","inputs":[{"name":"id","type":"uint256"}],"outputs":[],"stateMutability":"payable"},{"type":"function","name":"getJob","inputs":[{"name":"id","type":"uint256"}],"outputs":[{"name":"","type":"tuple","components":[{"name":"terms","type":"tuple","components":[{"name":"client","type":"address"},{"name":"contractor","type":"address"},{"name":"expectedTee","type":"address"},{"name":"principal","type":"uint128"},{"name":"fee","type":"uint128"},{"name":"createdAt","type":"uint64"},{"name":"acceptBy","type":"uint64"},{"name":"submitBy","type":"uint64"},{"name":"graceEnds","type":"uint64"},{"name":"verificationTimeout","type":"uint64"},{"name":"specHash","type":"bytes32"},{"name":"privateBundleHash","type":"bytes32"},{"name":"engineVersionHash","type":"bytes32"},{"name":"ciphertextHash","type":"bytes32"}]},{"name":"current","type":"tuple","components":[{"name":"attempt","type":"uint64"},{"name":"artifactAddress","type":"address"},{"name":"artifactBlock","type":"uint256"},{"name":"artifactCodeHash","type":"bytes32"},{"name":"targetRound","type":"uint256"},{"name":"randomRound","type":"uint256"},{"name":"randomValueHash","type":"bytes32"},{"name":"randomLocked","type":"bool"},{"name":"instructionId","type":"bytes32"},{"name":"dispatchedAt","type":"uint64"},{"name":"timeoutAt","type":"uint64"}]},{"name":"state","type":"uint8"},{"name":"settled","type":"bool"}]}],"stateMutability":"view"},{"type":"function","name":"lockRandomness","inputs":[{"name":"id","type":"uint256"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"nextJobId","inputs":[],"outputs":[{"name":"","type":"uint256"}],"stateMutability":"view"},{"type":"function","name":"protocolFeeBps","inputs":[],"outputs":[{"name":"","type":"uint16"}],"stateMutability":"view"},{"type":"function","name":"refundExpired","inputs":[{"name":"id","type":"uint256"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"settleAttempt","inputs":[{"name":"id","type":"uint256"},{"name":"data","type":"bytes"},{"name":"opType","type":"bytes32"},{"name":"opCommand","type":"bytes32"},{"name":"submissionTag","type":"string"},{"name":"status","type":"uint8"},{"name":"signature","type":"bytes"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"submitAttempt","inputs":[{"name":"id","type":"uint256"},{"name":"artifactAddress","type":"address"}],"outputs":[],"stateMutability":"nonpayable"},{"type":"function","name":"token","inputs":[],"outputs":[{"name":"","type":"address"}],"stateMutability":"view"},{"type":"function","name":"treasury","inputs":[],"outputs":[{"name":"","type":"address"}],"stateMutability":"view"},{"type":"event","name":"VerificationDispatched","inputs":[{"name":"jobId","type":"uint256","indexed":true},{"name":"attempt","type":"uint64","indexed":true},{"name":"instructionId","type":"bytes32","indexed":false},{"name":"expectedTee","type":"address","indexed":false},{"name":"timeoutAt","type":"uint64","indexed":false}],"anonymous":false}]`)
 )
 
 type jobView struct {
@@ -88,7 +88,12 @@ type configValues struct {
 	settleTag     string
 	storeCipher   string
 	failVector    bool
+	refundOnly    bool
 	pollTimeout   time.Duration
+	acceptDelay   time.Duration
+	submitDelay   time.Duration
+	graceDelay    time.Duration
+	verifyTimeout time.Duration
 	resumeJobID   *big.Int
 }
 
@@ -153,8 +158,22 @@ func main() {
 	nextJobID := callBig(ctx, escrow, "nextJobId")
 	now := uint64(time.Now().Unix())
 	auth = authFor(ctx, client, key, chainID, nil)
-	tx = transact(ctx, client, escrow, auth, "createJob", cfg.contractor, cfg.principal, now+600, now+3600, now+7200, uint64(1200), specHash, [32]byte(privateBundleHash), [32]byte(engineHash), [32]byte(ciphertextHash))
+	acceptBy, submitBy, graceEnds := deadlines(now, cfg)
+	tx = transact(ctx, client, escrow, auth, "createJob", cfg.contractor, cfg.principal, acceptBy, submitBy, graceEnds, uint64(cfg.verifyTimeout.Seconds()), specHash, [32]byte(privateBundleHash), [32]byte(engineHash), [32]byte(ciphertextHash))
 	fmt.Printf("createJob tx: %s jobId=%s\n", tx.Hash(), nextJobID)
+	fmt.Printf("deadlines: acceptBy=%d submitBy=%d graceEnds=%d verificationTimeout=%ds\n", acceptBy, submitBy, graceEnds, uint64(cfg.verifyTimeout.Seconds()))
+
+	if cfg.refundOnly {
+		waitForGrace(graceEnds)
+		clientBefore := callBig(ctx, tokenContract, "balanceOf", from)
+		auth = authFor(ctx, client, key, chainID, nil)
+		tx = transact(ctx, client, escrow, auth, "refundExpired", nextJobID)
+		fmt.Printf("refundExpired tx: %s\n", tx.Hash())
+		clientAfter := callBig(ctx, tokenContract, "balanceOf", from)
+		job := getJob(ctx, escrow, nextJobID)
+		fmt.Printf("refund delta=%s final job state=%d settled=%t\n", new(big.Int).Sub(clientAfter, clientBefore), job.State, job.Settled)
+		return
+	}
 
 	auth = authFor(ctx, client, key, chainID, nil)
 	tx = transact(ctx, client, escrow, auth, "acceptJob", nextJobID)
@@ -203,7 +222,12 @@ func parseFlags() configValues {
 	flag.Var(hashValue{&cfg.engineHash}, "engine-hash", "optional engineVersionHash override")
 	flag.StringVar(&cfg.storeCipher, "store-cipher", "", "optional path to write encrypted bundle")
 	flag.BoolVar(&cfg.failVector, "fail", false, "build a failing CODE_SIZE_RANGE vector")
+	flag.BoolVar(&cfg.refundOnly, "refund-only", false, "create a short-deadline job and refund it after graceEnds without accepting")
 	flag.DurationVar(&cfg.pollTimeout, "poll-timeout", 10*time.Minute, "max wait for action result")
+	flag.DurationVar(&cfg.acceptDelay, "accept-delay", 10*time.Minute, "duration from now to acceptBy")
+	flag.DurationVar(&cfg.submitDelay, "submit-delay", time.Hour, "duration from now to submitBy")
+	flag.DurationVar(&cfg.graceDelay, "grace-delay", 2*time.Hour, "duration from now to graceEnds")
+	flag.DurationVar(&cfg.verifyTimeout, "verification-timeout", 20*time.Minute, "verification timeout stored on the job")
 	resumeJob := flag.Int64("resume-job", -1, "resume an existing ready-to-verify job id")
 	principal := flag.Int64("principal", defaultPrincipalWei, "escrow principal in token base units")
 	flag.Parse()
@@ -225,6 +249,9 @@ func parseFlags() configValues {
 		cfg.resumeJobID = big.NewInt(*resumeJob)
 	}
 	cfg.principal = big.NewInt(*principal)
+	if cfg.acceptDelay <= 0 || cfg.submitDelay <= cfg.acceptDelay || cfg.graceDelay <= cfg.submitDelay || cfg.verifyTimeout <= 0 {
+		fatalf("invalid deadlines: require 0 < accept-delay < submit-delay < grace-delay and verification-timeout > 0")
+	}
 	required("rpc", cfg.rpcURL)
 	required("proxy", cfg.proxyURL)
 	required("private-key", cfg.privKey)
@@ -266,6 +293,20 @@ func resumeFromReady(ctx context.Context, client *ethclient.Client, escrow *bind
 	fmt.Printf("settleAttempt tx: %s\n", tx.Hash())
 	job = getJob(ctx, escrow, id)
 	fmt.Printf("final job state=%d settled=%t\n", job.State, job.Settled)
+}
+
+func deadlines(now uint64, cfg configValues) (uint64, uint64, uint64) {
+	return now + uint64(cfg.acceptDelay.Seconds()),
+		now + uint64(cfg.submitDelay.Seconds()),
+		now + uint64(cfg.graceDelay.Seconds())
+}
+
+func waitForGrace(graceEnds uint64) {
+	target := time.Unix(int64(graceEnds)+15, 0)
+	if sleep := time.Until(target); sleep > 0 {
+		fmt.Printf("waiting %s for graceEnds to pass\n", sleep.Round(time.Second))
+		time.Sleep(sleep)
+	}
 }
 
 func buildBundle(specHash common.Hash, failVector bool) ([]byte, common.Hash, error) {

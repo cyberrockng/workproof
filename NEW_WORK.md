@@ -221,6 +221,41 @@ wiring, fail-closed verifier config + `/state` health, image/compiler
 pinning, verdict-timestamp determinism + RPC-trust threat-model
 documentation, evidence-doc corrections) are still open.
 
+## Phase 5 FCC Completion
+
+On 2026-08-14 the Coston2 simulated-attestation path was completed against the
+live redeployed FlareTeeManager:
+
+- Current extension: `66223`
+- Current WorkProof escrow/instruction sender:
+  `0x7B984320aA969Ad6522E7c902371dD208C1760A4`
+- Current TEE: `0x962cf74e9673170f273576764c60dF2fc13A28aa`
+- Current public endpoint: `https://retention-pasta-clip.ngrok-free.dev`
+
+The final blocker was local routing, not provider storage: providers POST
+instructions to `/instruction`, but the WorkProof gateway only forwarded
+`/info`, `/action/*`, `/wallet/*`, and `/state`, so provider delivery hit a
+gateway 404 before ext-proxy could process it. The gateway now forwards
+`/instruction`, and ext-proxy was rebuilt on tee-proxy `v0.0.22` to match the
+current Coston2 scaffold pin.
+
+After that fix, `register-tee` obtained the availability proof and the machine
+reached registry status `2`. The WorkProof Phase 5 helper then produced all
+required outcome evidence on Coston2:
+
+- PASS/pay: job `2`, final state `Paid`, settle tx
+  `0xcddf06c7a85973f32363cafc8989c17949062413ae789ec59e320e17d206b556`.
+- FAIL/no-pay: job `3`, final state `AwaitingResubmission`, `settled=false`,
+  settle tx
+  `0x649d527226d0949e04b112d6c4d55e9854bb39b645147d1b1b1d4ce1be1092de`.
+- Refund: job `4`, final state `Refunded`, refund tx
+  `0xca8d403aeec99d37ec372c26314be0843aadd0a4e78ad19e775181d2f299f53a`.
+
+The helper gained a `-refund-only` mode plus configurable short deadlines so
+the expiry/refund path can be reproduced without manual waiting. Structured
+evidence is recorded in `docs/evidence/demo-run.json` and
+`deployments/coston2.json`.
+
 ## Scaffold-Owned Areas
 
 The following directories are inherited from the scaffold and should be changed only when implementing WorkProof-specific behavior:

@@ -3,63 +3,136 @@
   "chainId": 114,
   "rpc": "https://coston2-api.flare.network/ext/C/rpc",
   "explorer": "https://coston2-explorer.flare.network",
-  "sourceCommit": "acda563c16c233e220f2fafafc0839cedfd0c81f",
-  "workingTreeDirty": true,
-  "deployedAt": "2026-08-12T18:23:52Z",
+  "sourceCommit": "da764f9f9fcb7f25bbd1840c5be65af2af665317",
+  "workingTreeDirty": false,
+  "updatedAt": "2026-08-14T00:00:00+01:00",
   "deployer": "0x9D51803c7aEC6F8A67E0A578158e5f84F774EEAB",
   "contractAddresses": {
-    "WorkProofEscrow": "0x62D7AFE78bC7D8E1D8266C8C248C7Cdb35ad4EFc",
+    "WorkProofEscrow": "0x7B984320aA969Ad6522E7c902371dD208C1760A4",
+    "InstructionSender": "0x7B984320aA969Ad6522E7c902371dD208C1760A4",
     "FlareTeeManager": "0x1a9C4A0f9D76c0b1D91d22E24E573a9b377618aE",
     "treasury": "0xDA02a4df41581756F209e73B4aD1Ab70fC1B575e"
   },
   "contractDeploymentTxs": {
-    "deployWorkProofEscrow": "0x681b6d0c7cdf82c4d53cf3c9ac6fed7ea48a1caec5011dce39be15c111e9ae9d",
-    "registerExtension": "0x72185f0250c9119e0d0d7697930f50682f11914816c0736e1d89ac44da490eeb",
-    "allowTeeMachineOwners": "0xe6a35715c4e33238a9a16884c1228c1825ef040883f01aad76811b122e2fe54a",
-    "allowTeeWalletProjectOwners": "0x99ea1f4526cc9b2357daf089b0f2c774e048c8081852ba55b7f3d834534dec87",
-    "addSupportedKeyTypes": "0x35f40504cf6b68d036cdf22303b3ef4b013a64f0b4aaa1e43124688a302ecc0f",
-    "setExtensionId": "0xccdf768bb202257794f59847c3ef999bc32384e8ea5260dac026e74a6d64e76b"
+    "note": "The current redeploy transaction hashes were not retained in tracked logs. This manifest records the verified current address plus end-to-end Coston2 evidence transaction hashes below."
   },
   "resolvedFTestXRP": "0x0b6A3645c240605887a5532109323A3E12273dc7",
   "protocolFeeBps": 100,
-  "extensionId": "0x0000000000000000000000000000000000000000000000000000000000010281",
-  "extensionIdDecimal": 66177,
+  "extensionId": "0x00000000000000000000000000000000000000000000000000000000000102af",
+  "extensionIdDecimal": 66223,
   "registryVerification": {
-    "getTeeExtensionInstructionsSender": "0x62D7AFE78bC7D8E1D8266C8C248C7Cdb35ad4EFc",
-    "nextPublicExtensionIdAfterRegistration": 66178,
-    "escrowBytecodeBytesIncluding0x": 20959
+    "teeMachineStatus": 2,
+    "teeMachine": {
+      "teeId": "0x962cf74e9673170f273576764c60dF2fc13A28aa",
+      "owner": "0x9D51803c7aEC6F8A67E0A578158e5f84F774EEAB",
+      "url": "https://retention-pasta-clip.ngrok-free.dev"
+    },
+    "getTeeMachineStatusCommand": "cast call 0x1a9C4A0f9D76c0b1D91d22E24E573a9b377618aE \"getTeeMachineStatus(address)(uint8)\" 0x962cf74e9673170f273576764c60dF2fc13A28aa --rpc-url https://coston2-api.flare.network/ext/C/rpc"
   },
   "phase5ServiceStatus": {
     "preBuild": "passed",
     "startServices": "passed",
-    "dockerFallback": "Docker Desktop was usable through a temporary WSL wrapper for the Windows docker.exe CLI; images built and containers started.",
-    "indexerPath": "self-hosted flare-system-c-chain-indexer MySQL exposed on host.docker.internal:3306",
-    "indexerRpc": "https://falling-skilled-uranium.flare-coston2.quiknode.pro/ext/bc/C/rpc",
-    "hostedIndexerConnectivity": "Flare-provided hosted DB credentials were applied locally, but 35.241.249.150:3306 refused/timed out from this network.",
+    "postBuild": "passed",
+    "proxyImage": "local/tee-proxy rebuilt from tee-proxy v0.0.22",
+    "indexerPath": "Flare-provided shared Coston2 indexer DB; credentials are intentionally not recorded in git.",
+    "stableTunnelUrl": "https://retention-pasta-clip.ngrok-free.dev",
     "extensionProxyInfo": {
       "status": "live",
-      "checkedAt": "2026-08-13T00:16:00+01:00",
-      "localUrl": "http://localhost:6674/info",
-      "stableTunnelUrl": "https://retention-pasta-clip.ngrok-free.dev/info",
-      "extensionIdInInfo": "0x0000000000000000000000000000000000000000000000000000000000010281",
+      "checkedAt": "2026-08-14T00:00:00+01:00",
+      "publicInfoUrl": "https://retention-pasta-clip.ngrok-free.dev/info",
+      "localGatewayUrl": "http://127.0.0.1:7790/info",
+      "extensionIdInInfo": "0x00000000000000000000000000000000000000000000000000000000000102af",
       "chainId": 114,
-      "simulatedAttestation": "magic_pass",
-      "initialSigningPolicyId": 5930,
-      "lastSigningPolicyId": 5930,
-      "teeId": "0x0BC40802A4C1637F311b59090c9Fdf57b4Bf165e"
+      "attestation": "magic_pass",
+      "attestationMode": "simulated",
+      "platform": "TEST_PLATFORM",
+      "platformHex": "0x544553545f504c4154464f524d00000000000000000000000000000000000000",
+      "codeHash": "0x194844cf417dde867073e5ab7199fa4d21fd82b5dbe2bdea8b3d7fc18d10fdc2",
+      "governanceHash": "0xec29826578cec3cf256b8254484fa7faa3609dd00991a6c3628885c5d93a1b7d",
+      "initialSigningPolicyId": 5936,
+      "lastSigningPolicyId": 5938,
+      "teeId": "0x962cf74e9673170f273576764c60dF2fc13A28aa",
+      "publicKeyX": "0x14e7bda8b56d9b6450a82040e99ac0b0d04ec5588a238aca4d89c35ca25df173",
+      "publicKeyY": "0xeb5ad1232e2937d0d4149b329f993290006e2674c307ba40875a904a7b15f1d7"
     },
-    "postBuild": "partial",
-    "postBuildProgress": {
-      "allowTeeVersion": "passed",
-      "setGovernance": "passed",
-      "registerTeeState": "rRa",
-      "teeAttestInstructionId": "0xb990c908fa4331c6f83007e196cdc1dad769a3bda4dc7aa2b4c6792ed82f1e94",
-      "availabilityInstructionId": "0xab0c8151cccaa60d1a0a5166567b85073ec80c69a12e3014774ddb4a2113bafb",
-      "normalProxy": "https://tee-proxy-coston2-1.flare.rocks",
-      "normalProxyPolicyEpoch": 5932
+    "fccRegistrationEvidence": {
+      "teeAttestationInstructionId": "0x0245b8297624b0bd0d5df372918535f4d9909785eb0b36cf0be0044b39fcc90b",
+      "availabilityInstructionId": "0x47c909e7b96829fb6b47bcf42768c9a2c1a5845fa1b580ba3793b91c2e40436c",
+      "availabilityResult": "proof obtained; machine promoted to registry status 2",
+      "normalProxies": [
+        "https://tee-proxy-coston2-1.flare.rocks",
+        "https://tee-proxy-coston2-2.flare.rocks"
+      ]
     },
-    "blockers": [
-      "Coston2 FTDC normal proxy returned 404 for the availability-check result after several minutes of polling. Keep config/register-tee.state and resume promotion with REGISTER_TEE_COMMAND=p once the proof appears, or request a fresh availability check and escalate to Flare if it repeats."
+    "routingFix": {
+      "rootCause": "The WorkProof gateway did not forward provider POST /instruction traffic to ext-proxy, so providers received a gateway 404.",
+      "fix": "Forward /instruction in go/cmd/workproof-gateway and run ext-proxy on tee-proxy v0.0.22."
+    },
+    "limitations": [
+      "Simulated TEE attestation only; no GCP AMD SEV hardware attestation is claimed.",
+      "No polished deployed web UI is included in this repository."
     ]
+  },
+  "phase5Evidence": {
+    "passPay": {
+      "jobId": 2,
+      "state": "Paid",
+      "stateCode": 7,
+      "settled": true,
+      "approveTx": "0xcffb55d997f556d2aecf7e8077a6318f9a466951c2fd8d7f90598a531c1fe254",
+      "createJobTx": "0xadbf8cdf5dfd182e22470877f8a2a503819dd80e17ac659d8b5961ed1bee8dd2",
+      "acceptJobTx": "0x311e2698ed79168e2b2da05fd313f526c8a0d05c53f5f2ee3e5f25ad4eb633ea",
+      "submitAttemptTx": "0x080712fe1fc60ea7a9aa84ab2c0d13f5c78cbd362850fd8ad2aaababda54b2b0",
+      "lockRandomnessTx": "0x23e88d252af74065a0713611c75d6500b070edf957a7d079bafb330a11259cad",
+      "dispatchVerificationTx": "0x98aebb57c7ba0d37b079f83d646b31e12e15d3951117c14dfe75867bc5f83429",
+      "settleAttemptTx": "0xcddf06c7a85973f32363cafc8989c17949062413ae789ec59e320e17d206b556",
+      "instructionId": "0x54e4edc9290ff939413b54f90d991812e6771f669a8441d12f1610aaeb14a0d4",
+      "randomRound": 1425237,
+      "expectedTee": "0x962cf74e9673170f273576764c60dF2fc13A28aa",
+      "actionResult": {
+        "submissionTag": "threshold",
+        "status": 1,
+        "log": "ok",
+        "dataBytes": 640
+      }
+    },
+    "failNoPay": {
+      "jobId": 3,
+      "state": "AwaitingResubmission",
+      "stateCode": 5,
+      "settled": false,
+      "approveTx": "0xe73a0694dbee876303a08f273714f813ad505020a09998e0aae51ef49034bd0e",
+      "createJobTx": "0xc5cdbd703c63c8e6313b43e8bfb5eb0677f85abbd128ef9a74a76861ef3c800c",
+      "acceptJobTx": "0xffb3e6bbf3b2ef0e341c655f9a5a5317f193fd60e66c9fda3d705844bfbf7327",
+      "submitAttemptTx": "0x1bf15c069ef4f386293d394de6f9193e6b989c9ffeaf68fbfe0b21ed9173e1b6",
+      "lockRandomnessTx": "0xe54c09ad2bd4e534914157e67af26695e226585ca642eb80809e33ffbc42db26",
+      "dispatchVerificationTx": "0x49db6e87ccd4787224e4e6aaa62b8d718f587c08d223688507515d85f0f138f6",
+      "settleAttemptTx": "0x649d527226d0949e04b112d6c4d55e9854bb39b645147d1b1b1d4ce1be1092de",
+      "instructionId": "0xd50472e92318748d4a3e111834d95df31eae5ebb0125ffad7527ac3a204047de",
+      "randomRound": 1425251,
+      "expectedTee": "0x962cf74e9673170f273576764c60dF2fc13A28aa",
+      "actionResult": {
+        "submissionTag": "threshold",
+        "status": 1,
+        "log": "ok",
+        "dataBytes": 640
+      }
+    },
+    "refund": {
+      "jobId": 4,
+      "state": "Refunded",
+      "stateCode": 9,
+      "settled": true,
+      "approveTx": "0x09a64cfea68404becf84696b94623d8774c5324383a354e2dc23afe6b93a2da3",
+      "createJobTx": "0xac005d5026a3ec5f2d51985299f41fc100ecc51516d8fd05caef3b186228574e",
+      "refundExpiredTx": "0xca8d403aeec99d37ec372c26314be0843aadd0a4e78ad19e775181d2f299f53a",
+      "refundDelta": "1010",
+      "deadlines": {
+        "acceptBy": 1786702897,
+        "submitBy": 1786702927,
+        "graceEnds": 1786702957,
+        "verificationTimeoutSeconds": 120
+      }
+    }
   }
 }

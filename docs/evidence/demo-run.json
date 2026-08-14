@@ -1,0 +1,134 @@
+{
+  "name": "WorkProof Phase 5 Coston2 demo run",
+  "network": {
+    "name": "Coston2",
+    "chainId": 114,
+    "rpc": "https://coston2-api.flare.network/ext/C/rpc",
+    "explorer": "https://coston2-explorer.flare.network"
+  },
+  "sourceCommit": "da764f9f9fcb7f25bbd1840c5be65af2af665317",
+  "workproof": {
+    "escrow": "0x7B984320aA969Ad6522E7c902371dD208C1760A4",
+    "instructionSender": "0x7B984320aA969Ad6522E7c902371dD208C1760A4",
+    "extensionId": "0x00000000000000000000000000000000000000000000000000000000000102af",
+    "extensionIdDecimal": 66223,
+    "opType": "WORKPROOF",
+    "opCommand": "VERIFY",
+    "submissionTag": "threshold"
+  },
+  "fcc": {
+    "flareTeeManager": "0x1a9C4A0f9D76c0b1D91d22E24E573a9b377618aE",
+    "teeId": "0x962cf74e9673170f273576764c60dF2fc13A28aa",
+    "teeMachineStatus": 2,
+    "publicProxy": "https://retention-pasta-clip.ngrok-free.dev",
+    "publicInfo": "https://retention-pasta-clip.ngrok-free.dev/info",
+    "attestation": "magic_pass",
+    "attestationMode": "simulated",
+    "platform": "TEST_PLATFORM",
+    "codeHash": "0x194844cf417dde867073e5ab7199fa4d21fd82b5dbe2bdea8b3d7fc18d10fdc2",
+    "governanceHash": "0xec29826578cec3cf256b8254484fa7faa3609dd00991a6c3628885c5d93a1b7d",
+    "publicKey": {
+      "x": "0x14e7bda8b56d9b6450a82040e99ac0b0d04ec5588a238aca4d89c35ca25df173",
+      "y": "0xeb5ad1232e2937d0d4149b329f993290006e2674c307ba40875a904a7b15f1d7"
+    },
+    "registration": {
+      "teeAttestationInstructionId": "0x0245b8297624b0bd0d5df372918535f4d9909785eb0b36cf0be0044b39fcc90b",
+      "availabilityInstructionId": "0x47c909e7b96829fb6b47bcf42768c9a2c1a5845fa1b580ba3793b91c2e40436c",
+      "result": "availability check proof obtained; machine promoted to status 2"
+    }
+  },
+  "scenarios": [
+    {
+      "scenario": "PASS_PAY",
+      "jobId": 2,
+      "attempt": 1,
+      "outcome": "PASS",
+      "finalState": "Paid",
+      "finalStateCode": 7,
+      "settled": true,
+      "randomRound": 1425237,
+      "instructionId": "0x54e4edc9290ff939413b54f90d991812e6771f669a8441d12f1610aaeb14a0d4",
+      "expectedTee": "0x962cf74e9673170f273576764c60dF2fc13A28aa",
+      "transactions": {
+        "approve": "0xcffb55d997f556d2aecf7e8077a6318f9a466951c2fd8d7f90598a531c1fe254",
+        "createJob": "0xadbf8cdf5dfd182e22470877f8a2a503819dd80e17ac659d8b5961ed1bee8dd2",
+        "acceptJob": "0x311e2698ed79168e2b2da05fd313f526c8a0d05c53f5f2ee3e5f25ad4eb633ea",
+        "submitAttempt": "0x080712fe1fc60ea7a9aa84ab2c0d13f5c78cbd362850fd8ad2aaababda54b2b0",
+        "lockRandomness": "0x23e88d252af74065a0713611c75d6500b070edf957a7d079bafb330a11259cad",
+        "dispatchVerification": "0x98aebb57c7ba0d37b079f83d646b31e12e15d3951117c14dfe75867bc5f83429",
+        "settleAttempt": "0xcddf06c7a85973f32363cafc8989c17949062413ae789ec59e320e17d206b556"
+      },
+      "actionResult": {
+        "submissionTag": "threshold",
+        "status": 1,
+        "log": "ok",
+        "dataBytes": 640
+      }
+    },
+    {
+      "scenario": "FAIL_NO_PAY",
+      "jobId": 3,
+      "attempt": 1,
+      "outcome": "FAIL",
+      "finalState": "AwaitingResubmission",
+      "finalStateCode": 5,
+      "settled": false,
+      "randomRound": 1425251,
+      "instructionId": "0xd50472e92318748d4a3e111834d95df31eae5ebb0125ffad7527ac3a204047de",
+      "expectedTee": "0x962cf74e9673170f273576764c60dF2fc13A28aa",
+      "transactions": {
+        "approve": "0xe73a0694dbee876303a08f273714f813ad505020a09998e0aae51ef49034bd0e",
+        "createJob": "0xc5cdbd703c63c8e6313b43e8bfb5eb0677f85abbd128ef9a74a76861ef3c800c",
+        "acceptJob": "0xffb3e6bbf3b2ef0e341c655f9a5a5317f193fd60e66c9fda3d705844bfbf7327",
+        "submitAttempt": "0x1bf15c069ef4f386293d394de6f9193e6b989c9ffeaf68fbfe0b21ed9173e1b6",
+        "lockRandomness": "0xe54c09ad2bd4e534914157e67af26695e226585ca642eb80809e33ffbc42db26",
+        "dispatchVerification": "0x49db6e87ccd4787224e4e6aaa62b8d718f587c08d223688507515d85f0f138f6",
+        "settleAttempt": "0x649d527226d0949e04b112d6c4d55e9854bb39b645147d1b1b1d4ce1be1092de"
+      },
+      "actionResult": {
+        "submissionTag": "threshold",
+        "status": 1,
+        "log": "ok",
+        "dataBytes": 640
+      }
+    },
+    {
+      "scenario": "REFUND",
+      "jobId": 4,
+      "attempt": 0,
+      "outcome": "REFUNDED",
+      "finalState": "Refunded",
+      "finalStateCode": 9,
+      "settled": true,
+      "refundDelta": "1010",
+      "deadlines": {
+        "acceptBy": 1786702897,
+        "submitBy": 1786702927,
+        "graceEnds": 1786702957,
+        "verificationTimeoutSeconds": 120
+      },
+      "transactions": {
+        "approve": "0x09a64cfea68404becf84696b94623d8774c5324383a354e2dc23afe6b93a2da3",
+        "createJob": "0xac005d5026a3ec5f2d51985299f41fc100ecc51516d8fd05caef3b186228574e",
+        "refundExpired": "0xca8d403aeec99d37ec372c26314be0843aadd0a4e78ad19e775181d2f299f53a"
+      }
+    }
+  ],
+  "verification": {
+    "checksRun": [
+      "./scripts/check-versions.sh",
+      "cd go && go test ./cmd/workproof-gateway ./cmd/workproof-phase5",
+      "cd tools && go test ./...",
+      "forge test --match-contract WorkProofEscrowTest"
+    ],
+    "notes": [
+      "The successful FCC path depends on gateway forwarding of provider POST /instruction to ext-proxy.",
+      "The demo is a simulated-attestation Coston2 FCC deployment, accepted by hackathon organizers for demonstration."
+    ]
+  },
+  "limitations": [
+    "No GCP AMD SEV hardware attestation is claimed in this evidence.",
+    "No polished deployed web UI is included; the working demo evidence is repository, CLI flow, live FCC proxy, and Coston2 transactions.",
+    "DoraHacks submission upload and demo video publication are account/browser tasks outside this repository."
+  ]
+}

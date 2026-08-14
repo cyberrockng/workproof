@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WorkProof FAQ</title>
+    <link rel="stylesheet" href="/web/styles.css" />
+    <script type="module" src="/web/app.js"></script>
+  </head>
+  <body data-page="faq">
+    <site-header></site-header>
+    <main>
+      <page-hero eyebrow="FAQ" title="Straight answers about WorkProof, FCC, testnet scope, and production limits.">
+        These answers describe the current hackathon deployment and the intended production model.
+      </page-hero>
+
+      <section class="section faq-list">
+        <details open><summary>What is WorkProof?</summary><p>A Coston2 escrow protocol where smart-contract work is paid only after a Flare Confidential Compute verifier signs a matching PASS verdict.</p></details>
+        <details><summary>What does the TEE verify?</summary><p>It verifies committed hidden test vectors against the submitted artifact, rechecks chain state, derives vector selection from Flare randomness, and signs VerdictV1.</p></details>
+        <details><summary>What happens on FAIL?</summary><p>The contractor is not paid. The job can move to resubmission if still within the allowed window, or refund behavior if too late.</p></details>
+        <details><summary>Can the client steal funds?</summary><p>The client cannot withdraw while the job is live and validly progressing. Refund requires missed acceptance/submission/verification windows or expiry behavior defined by the contract.</p></details>
+        <details><summary>Can the contractor be paid without passing?</summary><p>No. The escrow pays only after it verifies a PASS verdict signed by the pinned TEE with all required bindings.</p></details>
+        <details><summary>Is this mainnet-ready?</summary><p>No. The current project is hackathon/testnet evidence. Production requires hardware attestation, formal audit, RPC quorum, monitoring, and operational controls.</p></details>
+        <details><summary>Is this real hardware attestation?</summary><p>No. The current Coston2 deployment uses simulated attestation (`magic_pass`, `TEST_PLATFORM`) as allowed for the hackathon demo.</p></details>
+        <details><summary>What is simulated attestation?</summary><p>It is a development mode where the FCC stack exercises the registration and verification flow without proving that the workload ran inside real GCP AMD SEV Confidential Space hardware.</p></details>
+      </section>
+    </main>
+    <site-footer></site-footer>
+  </body>
+</html>

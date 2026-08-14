@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WorkProof Protocol</title>
+    <link rel="stylesheet" href="/web/styles.css" />
+    <script type="module" src="/web/app.js"></script>
+  </head>
+  <body data-page="protocol">
+    <site-header></site-header>
+    <main>
+      <page-hero eyebrow="Protocol" title="Escrow state is the source of truth. The TEE only signs evidence; the contract decides settlement.">
+        WorkProofEscrow is both the escrow and FCC instruction sender. It pins the TEE at job creation,
+        dispatches VERIFY, and validates a signed VerdictV1 before moving funds.
+      </page-hero>
+
+      <section class="section split">
+        <div>
+          <h2>Lifecycle states</h2>
+          <p>
+            The state machine prevents payment before a submitted artifact has been bound to a random round
+            and verified by the pinned TEE.
+          </p>
+        </div>
+        <div class="state-grid">
+          <span>Created</span>
+          <span>Accepted</span>
+          <span>Submitted</span>
+          <span>ReadyToVerify</span>
+          <span>Verifying</span>
+          <span>AwaitingResubmission</span>
+          <span>RefundPending</span>
+          <span>Paid</span>
+          <span>Refunded</span>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Outcome table</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>TEE outcome</th>
+                <th>Contract state</th>
+                <th>Funds movement</th>
+                <th>Operator action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>PASS</td>
+                <td>Paid</td>
+                <td>Principal to contractor, fee to treasury</td>
+                <td>Any relayer can submit the signed result</td>
+              </tr>
+              <tr>
+                <td>FAIL</td>
+                <td>AwaitingResubmission or RefundPending</td>
+                <td>No contractor payment</td>
+                <td>Contractor may resubmit before deadline</td>
+              </tr>
+              <tr>
+                <td>INCONCLUSIVE</td>
+                <td>AwaitingResubmission or RefundPending</td>
+                <td>No contractor payment</td>
+                <td>Retry or refund depending on timing</td>
+              </tr>
+              <tr>
+                <td>Expired</td>
+                <td>Refunded</td>
+                <td>Locked amount returns to client</td>
+                <td>Client calls refund after grace</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section cards-3">
+        <article class="detail-card">
+          <h3>TEE signature model</h3>
+          <p>The escrow recovers the signer from the FCC result and requires it to match the TEE pinned on the job.</p>
+        </article>
+        <article class="detail-card">
+          <h3>Replay protection</h3>
+          <p>Verdicts are bound to the instruction ID, job, attempt, chain, escrow, issue time, and expiry.</p>
+        </article>
+        <article class="detail-card">
+          <h3>Wrong-signer protection</h3>
+          <p>A valid signature from another TEE, extension, or chain cannot settle the job.</p>
+        </article>
+      </section>
+    </main>
+    <site-footer></site-footer>
+  </body>
+</html>

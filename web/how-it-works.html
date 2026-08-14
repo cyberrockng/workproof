@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>How WorkProof Works</title>
+    <link rel="stylesheet" href="/web/styles.css" />
+    <script type="module" src="/web/app.js"></script>
+  </head>
+  <body data-page="how">
+    <site-header></site-header>
+    <main>
+      <page-hero eyebrow="How it works" title="A settlement path built around job state, randomness, and TEE-signed verdicts.">
+        WorkProof does not ask an admin to decide whether work is acceptable. The job moves through a
+        deterministic escrow lifecycle, and settlement depends on a signed FCC ActionResult.
+      </page-hero>
+
+      <section class="section">
+        <div class="timeline">
+          <protocol-step number="01" title="Client creates job">
+            The client funds principal plus protocol fee and commits to a private bundle hash, ciphertext hash,
+            engine hash, deadlines, and the expected TEE selected before encryption.
+          </protocol-step>
+          <protocol-step number="02" title="Contractor accepts">
+            The named contractor accepts before `acceptBy`. If the job is never accepted, the client can cancel
+            and recover funds after the acceptance window.
+          </protocol-step>
+          <protocol-step number="03" title="Artifact is submitted">
+            The contractor submits the deployed contract artifact. The escrow records its runtime codehash at
+            submission so later bytecode changes cannot silently settle.
+          </protocol-step>
+          <protocol-step number="04" title="Randomness is locked">
+            The escrow locks a Flare secure random round. Hidden test-vector selection is derived from that
+            randomness and the committed job data.
+          </protocol-step>
+          <protocol-step number="05" title="FCC verifies hidden vectors">
+            The Go extension decrypts the private bundle, checks commitments, re-reads chain state, executes
+            selected vectors, and signs a VerdictV1 payload.
+          </protocol-step>
+          <protocol-step number="06" title="Outcome settles">
+            PASS pays the contractor and treasury. FAIL or INCONCLUSIVE does not pay. Once grace expires, refund
+            remains available to the client.
+          </protocol-step>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="diagram">
+          <div class="lane">
+            <h2>Actors</h2>
+            <span>Client</span>
+            <span>Contractor</span>
+            <span>WorkProofEscrow</span>
+            <span>FCC TEE</span>
+          </div>
+          <div class="sequence">
+            <div><strong>Create job</strong><p>Funds and commitments enter escrow.</p></div>
+            <div><strong>Submit artifact</strong><p>Runtime codehash is pinned.</p></div>
+            <div><strong>Dispatch VERIFY</strong><p>Instruction goes through FlareTeeManager.</p></div>
+            <div><strong>Return verdict</strong><p>TEE signs PASS, FAIL, or INCONCLUSIVE.</p></div>
+            <div><strong>Settle</strong><p>Escrow checks every binding before moving funds.</p></div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <site-footer></site-footer>
+  </body>
+</html>

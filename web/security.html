@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WorkProof Security</title>
+    <link rel="stylesheet" href="/web/styles.css" />
+    <script type="module" src="/web/app.js"></script>
+  </head>
+  <body data-page="security">
+    <site-header></site-header>
+    <main>
+      <page-hero eyebrow="Security" title="Fund safety is enforced by contract bindings, not by operator promises.">
+        WorkProof is designed so a settlement result must match the escrow's own state. Known limitations are
+        documented directly because this demo is not production software.
+      </page-hero>
+
+      <section class="section cards-3">
+        <article class="detail-card"><h3>Fund safety controls</h3><p>Only PASS releases payment. FAIL, INCONCLUSIVE, late results, and expired jobs do not pay the contractor.</p></article>
+        <article class="detail-card"><h3>Artifact binding</h3><p>The submitted artifact address, block, and runtime codehash are checked again before settlement.</p></article>
+        <article class="detail-card"><h3>Randomness binding</h3><p>TEE vector selection depends on a locked Flare random round and committed job data.</p></article>
+        <article class="detail-card"><h3>Replay protection</h3><p>Verdicts bind chain ID, escrow, job, attempt, instruction ID, report hash, issue time, and expiry.</p></article>
+        <article class="detail-card"><h3>Wrong-signer rejection</h3><p>The recovered signer must be the TEE pinned for that job and registered under the WorkProof extension.</p></article>
+        <article class="detail-card"><h3>Audit required</h3><p>A formal third-party audit is required before production or mainnet use with valuable assets.</p></article>
+      </section>
+
+      <section class="section">
+        <h2>Known limitations</h2>
+        <ul class="check-list">
+          <li>Current deployment uses simulated attestation, not GCP AMD SEV hardware attestation.</li>
+          <li>Verifier RPC quorum is not implemented; production should compare independent providers.</li>
+          <li>Generic proxy artifacts remain a residual risk unless denied or governed by an immutable-artifact policy.</li>
+          <li>Role-separated demo evidence still requires separate client, contractor, and relayer keys.</li>
+          <li>Mainnet deployment requires monitoring, key rotation, verified infra, and external audit signoff.</li>
+        </ul>
+      </section>
+    </main>
+    <site-footer></site-footer>
+  </body>
+</html>

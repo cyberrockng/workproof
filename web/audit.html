@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WorkProof Audit Readiness</title>
+    <link rel="stylesheet" href="/web/styles.css" />
+    <script type="module" src="/web/app.js"></script>
+  </head>
+  <body data-page="audit">
+    <site-header></site-header>
+    <main>
+      <page-hero eyebrow="Audit readiness" title="Hackathon evidence is strong; production readiness is deliberately not claimed.">
+        The current repo includes internal tests, independent-audit response notes, Coston2 evidence, and a
+        mainnet-readiness checklist.
+      </page-hero>
+
+      <section class="section cards-3">
+        <article class="detail-card"><h3>Validated</h3><p>Escrow tests, invariant tests, FCC signature proof, Go verifier tests, tools tests, relayer tests, Coston2 PASS/FAIL/refund.</p></article>
+        <article class="detail-card"><h3>Fixed in source</h3><p>Timeout bounds, late non-pass behavior, HTTP limits, stricter config parsing, safer relayer secrets, fresh-clone bootstrap.</p></article>
+        <article class="detail-card"><h3>Still required</h3><p>Formal external audit, real hardware attestation, RPC quorum, proxy policy, monitoring, key rotation, and role-separated evidence.</p></article>
+      </section>
+
+      <section class="section">
+        <h2>Mainnet readiness checklist</h2>
+        <ul class="check-list">
+          <li>Real GCP Confidential Space deployment with non-simulated attestation.</li>
+          <li>Independent third-party audit of contracts, verifier, relayer, and operational runbooks.</li>
+          <li>Multiple independent RPC providers with quorum checks for verifier reads.</li>
+          <li>Immutable-artifact policy or proxy denial in verifier.</li>
+          <li>Explorer verification, deployment monitoring, rollback plan, and incident response.</li>
+        </ul>
+      </section>
+    </main>
+    <site-footer></site-footer>
+  </body>
+</html>

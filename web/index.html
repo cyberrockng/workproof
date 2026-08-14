@@ -3,106 +3,145 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>WorkProof Evidence Dashboard</title>
+    <title>WorkProof | FCC-verified escrow for smart-contract work</title>
+    <meta
+      name="description"
+      content="WorkProof locks Coston2 escrow funds and releases payment only after Flare Confidential Compute verifies a submitted smart-contract artifact."
+    />
     <link rel="stylesheet" href="/web/styles.css" />
+    <script type="module" src="/web/app.js"></script>
   </head>
-  <body>
-    <header class="topbar">
-      <div class="brand">
-        <img src="/assets/workproof-logo.png" alt="WorkProof" />
-        <div>
-          <strong>WorkProof</strong>
-          <span>Coston2 FCC evidence dashboard</span>
-        </div>
-      </div>
-      <a class="repo" href="https://github.com/cyberrockng/workproof">GitHub</a>
-    </header>
+  <body data-page="home">
+    <site-header></site-header>
 
     <main>
-      <section class="summary">
-        <div>
-          <p class="eyebrow">Live hackathon deployment</p>
-          <h1>Objective smart-contract work, paid only after TEE verification.</h1>
+      <section class="hero">
+        <div class="hero-copy">
+          <div class="label-row">
+            <span class="status-label">Coston2 Demo</span>
+            <span class="status-label warning">Simulated Attestation</span>
+            <span class="status-label danger">Not Mainnet Ready</span>
+          </div>
+          <h1>Escrow that pays only after confidential compute verifies the work.</h1>
           <p class="lead">
-            Client funds are locked on Coston2. The WorkProof FCC extension tests
-            the submitted contract and signs a verdict. PASS pays, FAIL keeps funds
-            locked for resubmission, and expiry refunds the client.
+            WorkProof is a Coston2 escrow protocol for objective smart-contract deliverables.
+            A client locks funds, a contractor submits an artifact, and a registered Flare
+            Confidential Compute TEE signs the verdict. PASS pays, FAIL allows resubmission,
+            and expiry unlocks refund.
           </p>
-        </div>
-        <div class="status-panel">
-          <div>
-            <span>Extension</span>
-            <strong>66223</strong>
-          </div>
-          <div>
-            <span>TEE Status</span>
-            <strong>2</strong>
-          </div>
-          <div>
-            <span>Network</span>
-            <strong>Coston2</strong>
-          </div>
-          <div>
-            <span>Attestation</span>
-            <strong>Simulated</strong>
+          <div class="cta-row">
+            <a class="button primary" href="/web/evidence.html">View Demo</a>
+            <a class="button" href="/README.md">Read Docs</a>
+            <a class="button" href="/docs/evidence/demo-run.json">Review Evidence</a>
           </div>
         </div>
-      </section>
-
-      <section class="grid">
-        <article class="panel wide">
-          <h2>Current Deployment</h2>
-          <dl class="facts">
+        <aside class="deployment-panel" aria-label="Current Coston2 deployment">
+          <p class="panel-kicker">Live demo deployment</p>
+          <dl class="metric-list">
+            <div>
+              <dt>Extension</dt>
+              <dd>66282</dd>
+            </div>
+            <div>
+              <dt>TEE status</dt>
+              <dd>2</dd>
+            </div>
             <div>
               <dt>Escrow</dt>
-              <dd>0x7B984320aA969Ad6522E7c902371dD208C1760A4</dd>
+              <dd>0x2eA5...E2dD</dd>
             </div>
             <div>
-              <dt>TEE</dt>
-              <dd>0x962cf74e9673170f273576764c60dF2fc13A28aa</dd>
-            </div>
-            <div>
-              <dt>Proxy</dt>
-              <dd>https://retention-pasta-clip.ngrok-free.dev</dd>
-            </div>
-            <div>
-              <dt>Code hash</dt>
-              <dd>0x194844cf417dde867073e5ab7199fa4d21fd82b5dbe2bdea8b3d7fc18d10fdc2</dd>
+              <dt>Source</dt>
+              <dd>Sourcify exact match</dd>
             </div>
           </dl>
-        </article>
+        </aside>
+      </section>
 
-        <article class="panel">
-          <h2>PASS Pays</h2>
-          <p class="state paid">Job 2 · Paid</p>
-          <p>TEE verdict settled on-chain and released principal plus fee.</p>
-          <code>0xcddf06c7a85973f32363cafc8989c17949062413ae789ec59e320e17d206b556</code>
-        </article>
+      <section class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Protocol flow</p>
+          <h2>Lock, verify privately, settle on-chain.</h2>
+          <p>
+            The escrow contract pins a specific TEE for each job and only accepts a signed
+            verdict whose fields match the job, attempt, artifact, randomness, and instruction.
+          </p>
+        </div>
+        <div class="flow-strip" aria-label="High level WorkProof flow">
+          <protocol-step number="01" title="Client funds escrow">
+            Principal and fee are locked in FTestXRP on Coston2 with deadlines and hidden-vector commitment.
+          </protocol-step>
+          <protocol-step number="02" title="Contractor submits artifact">
+            The artifact address and runtime codehash are recorded before verification can be dispatched.
+          </protocol-step>
+          <protocol-step number="03" title="FCC TEE verifies">
+            The Go verifier decrypts the private bundle, derives vector selection from Flare randomness, and signs VerdictV1.
+          </protocol-step>
+          <protocol-step number="04" title="Escrow settles">
+            PASS pays, FAIL keeps funds locked for resubmission, and expiry allows client refund.
+          </protocol-step>
+        </div>
+      </section>
 
-        <article class="panel">
-          <h2>FAIL Does Not Pay</h2>
-          <p class="state waiting">Job 3 · AwaitingResubmission</p>
-          <p>Failing artifact settled with no contractor payment.</p>
-          <code>0x649d527226d0949e04b112d6c4d55e9854bb39b645147d1b1b1d4ce1be1092de</code>
-        </article>
+      <section class="section split">
+        <div>
+          <p class="eyebrow">Why it matters</p>
+          <h2>Objective acceptance without exposing private tests.</h2>
+          <p>
+            WorkProof targets smart-contract bounties where payment should depend on concrete
+            executable behavior, but revealing all tests upfront lets contractors optimize only
+            against the public suite. The TEE receives encrypted hidden vectors, verifies the
+            deployed artifact, and produces a settlement-grade signature.
+          </p>
+        </div>
+        <div class="capability-grid">
+          <article class="capability">
+            <h3>Escrow-bound verdicts</h3>
+            <p>Every accepted PASS is bound to chain ID, escrow, job, attempt, instruction ID, artifact, randomness, engine, and report hash.</p>
+          </article>
+          <article class="capability">
+            <h3>Failure does not pay</h3>
+            <p>FAIL and INCONCLUSIVE do not release contractor funds; the job moves to resubmission or refund behavior.</p>
+          </article>
+          <article class="capability">
+            <h3>Honest demo scope</h3>
+            <p>The current deployment is Coston2 testnet with simulated attestation. It is not a real GCP AMD SEV hardware claim.</p>
+          </article>
+          <article class="capability">
+            <h3>Audit trail included</h3>
+            <p>The repo records Coston2 transactions, source verification, known risks, and the remaining production checklist.</p>
+          </article>
+        </div>
+      </section>
 
-        <article class="panel">
-          <h2>Refund Works</h2>
-          <p class="state refunded">Job 4 · Refunded</p>
-          <p>Expired job returned locked funds to the client.</p>
-          <code>0xca8d403aeec99d37ec372c26314be0843aadd0a4e78ad19e775181d2f299f53a</code>
-        </article>
-
-        <article class="panel">
-          <h2>Verification</h2>
-          <ul>
-            <li>Version pins consistent</li>
-            <li>Go Phase 5 helpers pass</li>
-            <li>Tools module tests pass</li>
-            <li>Foundry escrow tests: 94/94</li>
-          </ul>
-        </article>
+      <section class="section evidence-preview">
+        <div class="section-heading">
+          <p class="eyebrow">Demo evidence</p>
+          <h2>Three settlement paths are recorded on Coston2.</h2>
+        </div>
+        <div class="evidence-grid">
+          <evidence-card
+            tone="success"
+            title="PASS pays"
+            label="Job 1 - Paid"
+            tx="0xe03f1262d6c2d11b7d924fde3ad0547012e6088f98ec377a66675fe29305ece7"
+          ></evidence-card>
+          <evidence-card
+            tone="warning"
+            title="FAIL does not pay"
+            label="Job 2 - AwaitingResubmission"
+            tx="0x773c68ec74311c7081f12b656ab7fb4764206fb8fdc51aa7415c4a29e641c726"
+          ></evidence-card>
+          <evidence-card
+            tone="info"
+            title="Expiry refunds"
+            label="Job 3 - Refunded"
+            tx="0xa461ff44d918c0d23a28f4271ec7803948a8c2b129d42ea8777a585f8b2963df"
+          ></evidence-card>
+        </div>
       </section>
     </main>
+
+    <site-footer></site-footer>
   </body>
 </html>

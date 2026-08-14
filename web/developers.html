@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WorkProof Developers</title>
+    <link rel="stylesheet" href="/web/styles.css" />
+    <script type="module" src="/web/app.js"></script>
+  </head>
+  <body data-page="developers">
+    <site-header></site-header>
+    <main>
+      <page-hero eyebrow="Developers" title="Contract, verifier, relayer, and evidence code are open for inspection.">
+        The active implementation is Solidity plus Go. Python and TypeScript scaffold paths remain in the repo
+        for reference but are not the active WorkProof verifier.
+      </page-hero>
+
+      <section class="section split">
+        <div>
+          <h2>Local setup</h2>
+          <p>Run these from a fresh clone before local tests or Coston2 work.</p>
+        </div>
+        <pre><code>bash ./scripts/bootstrap.sh
+forge test
+cd go &amp;&amp; go test ./...
+cd tools &amp;&amp; go test ./...
+cd relayer &amp;&amp; npm test</code></pre>
+      </section>
+
+      <section class="section cards-3">
+        <article class="detail-card"><h3>Smart contract</h3><p>`contracts/WorkProofEscrow.sol` owns the escrow lifecycle and dispatches FCC VERIFY instructions.</p></article>
+        <article class="detail-card"><h3>Go verifier</h3><p>`go/internal/verifier` decrypts bundles, cross-checks chain state, executes vectors, and returns VerdictV1.</p></article>
+        <article class="detail-card"><h3>Relayer</h3><p>`relayer/src/relay.js` submits signed FCC results without holding escrow authority.</p></article>
+      </section>
+
+      <section class="section">
+        <h2>VerdictV1 binds</h2>
+        <div class="pill-grid">
+          <span>chainId</span><span>escrow</span><span>jobId</span><span>attempt</span><span>instructionId</span><span>artifactAddress</span><span>artifactCodehash</span><span>randomRound</span><span>engineHash</span><span>reportHash</span><span>expiresAt</span>
+        </div>
+      </section>
+    </main>
+    <site-footer></site-footer>
+  </body>
+</html>

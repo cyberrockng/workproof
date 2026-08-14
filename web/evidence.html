@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WorkProof Demo Evidence</title>
+    <link rel="stylesheet" href="/web/styles.css" />
+    <script type="module" src="/web/app.js"></script>
+  </head>
+  <body data-page="evidence">
+    <site-header></site-header>
+    <main>
+      <page-hero eyebrow="Demo evidence" title="Coston2 evidence for the current simulated-attestation WorkProof deployment.">
+        This evidence is useful for hackathon review and protocol validation. It is not a claim of
+        mainnet readiness or real GCP Confidential Space hardware attestation.
+      </page-hero>
+
+      <section class="notice strong">
+        <strong>Current scope:</strong>
+        Coston2 testnet, simulated TEE attestation (`magic_pass`, `TEST_PLATFORM`), exact-match source
+        verification, and recorded PASS/FAIL/refund flows.
+      </section>
+
+      <section class="section">
+        <h2>Deployment details</h2>
+        <dl class="facts-grid">
+          <div><dt>Escrow / InstructionSender</dt><dd>0x2eA5bBb676AD142cFa24A20A9Fd950e81640E2dD</dd></div>
+          <div><dt>Extension ID</dt><dd>66282</dd></div>
+          <div><dt>TEE ID</dt><dd>0x04635178b552b00d363557e1296aC71a7241eE87</dd></div>
+          <div><dt>FlareTeeManager</dt><dd>0x1a9C4A0f9D76c0b1D91d22E24E573a9b377618aE</dd></div>
+          <div><dt>Proxy</dt><dd>https://retention-pasta-clip.ngrok-free.dev</dd></div>
+          <div><dt>Source verification</dt><dd>Sourcify exact_match - faa71f5a-0f62-4fae-b317-befae579ffe3</dd></div>
+          <div><dt>Code hash</dt><dd>0x194844cf417dde867073e5ab7199fa4d21fd82b5dbe2bdea8b3d7fc18d10fdc2</dd></div>
+          <div><dt>Source commit</dt><dd>4b4358ca941bf6f64926d98425b34921f09b15e7</dd></div>
+        </dl>
+      </section>
+
+      <section class="section">
+        <h2>Recorded transactions</h2>
+        <div class="evidence-grid">
+          <evidence-card
+            tone="success"
+            title="PASS/pay"
+            label="Job 1 - Paid"
+            tx="0xe03f1262d6c2d11b7d924fde3ad0547012e6088f98ec377a66675fe29305ece7"
+          ></evidence-card>
+          <evidence-card
+            tone="warning"
+            title="FAIL/no-pay"
+            label="Job 2 - AwaitingResubmission"
+            tx="0x773c68ec74311c7081f12b656ab7fb4764206fb8fdc51aa7415c4a29e641c726"
+          ></evidence-card>
+          <evidence-card
+            tone="info"
+            title="Refund"
+            label="Job 3 - Refunded"
+            tx="0xa461ff44d918c0d23a28f4271ec7803948a8c2b129d42ea8777a585f8b2963df"
+          ></evidence-card>
+        </div>
+      </section>
+    </main>
+    <site-footer></site-footer>
+  </body>
+</html>

@@ -25,11 +25,11 @@ Latest source reviewed locally: current working tree after the independent audit
 |---|---|
 | H-01 one compromised RPC can cause false PASS/FAIL | Not fully fixed. The verifier now has stricter on-chain state checks, but vector execution still trusts one configured RPC. Production-grade mitigation requires multiple independent Coston2 RPC providers with quorum comparison for `eth_call`, `eth_getCode`, `eth_getStorageAt`, and randomness reads. |
 | H-02 generic proxy upgradeability | Partially fixed only. Direct artifact code replacement before settlement is blocked, but proxy implementation changes with unchanged proxy bytecode require verifier-side proxy detection/denial or an explicit immutable-artifact policy. |
-| H-03 live deployment predates security-relevant changes and is unverified | Still open. The current Coston2 evidence is tied to public commit `2779d77983e0f23d586b1ed56507e9a935644951`. The current source must be redeployed and explorer/source provenance must be refreshed before claiming this bytecode is live. |
-| H-04 recorded demo is single-operator | Still open. A submission-grade evidence run should use distinct client, contractor, relayer, treasury, and deployer wallets and record the transaction path. |
+| H-03 live deployment predates security-relevant changes and is unverified | Closed for hackathon evidence. The current source commit `4b4358ca941bf6f64926d98425b34921f09b15e7` was redeployed to Coston2 as WorkProofEscrow `0x2eA5bBb676AD142cFa24A20A9Fd950e81640E2dD`, extension `66282`, and Sourcify returned `exact_match` for verification job `faa71f5a-0f62-4fae-b317-befae579ffe3`. |
+| H-04 recorded demo is single-operator | Still open. The fresh Coston2 run proves PASS/pay, FAIL/no-pay, and refund, but it still used the available deployer key as the runner because separate client, contractor, and relayer private keys are not present locally. |
 | M-01 production registry status accepted without codehash/attestation policy | Still open for production. Simulated TEE is acceptable for hackathon judging, but mainnet needs a real attestation/codehash policy. |
 | M-04 public/private fairness not enforceable | Still residual. WorkProof proves commitments and hidden-vector execution, but it cannot fully prove public spec fairness without a stronger specification/review process. |
-| M-07 live endpoint availability | Operational. The endpoint must be checked immediately before submission/judging and kept online if live verification is expected. |
+| M-07 live endpoint availability | Closed at latest check. `https://retention-pasta-clip.ngrok-free.dev/info` returned HTTP 200 on 2026-08-14, reporting extension `66282`, simulated attestation `magic_pass`, and signing policy `5939`. It still must be kept running through judging if live verification is expected. |
 | Mainnet readiness | Deferred. Real GCP Confidential Space attestation, formal audit, deployment verification, monitoring, key rotation, RPC quorum, and operational runbooks remain required before valuable assets. |
 
 ## Verification Run
@@ -43,7 +43,11 @@ Latest source reviewed locally: current working tree after the independent audit
 - `forge test --match-contract WorkProofEscrowInvariantTest` (`3/3`)
 - `forge test --match-contract FccSignatureSpikeTest` (`10/10`)
 - `forge test --match-contract RealRegistryForkTest` (`7/7`)
+- Fresh Coston2 deployment and FCC evidence run from source commit
+  `4b4358ca941bf6f64926d98425b34921f09b15e7`.
+- `forge verify-contract ...` returned Sourcify `exact_match` for
+  `0x2eA5bBb676AD142cFa24A20A9Fd950e81640E2dD`.
 
 ## Submission Gate
 
-The repository source is stronger after this pass, but the audit is not fully closed until a fresh Coston2 deployment is made from the current commit, the explorer/source provenance is updated, the live endpoint is online, and role-separated transaction evidence is recorded.
+The hackathon submission evidence now has a fresh Coston2 deployment, exact-match source verification, live endpoint check, and PASS/pay, FAIL/no-pay, and refund evidence. The only audit-evidence item still open is role-separated transaction evidence, which requires separate client, contractor, and relayer private keys. Mainnet remains out of scope until real hardware attestation, RPC quorum, proxy policy, and a formal production audit are complete.

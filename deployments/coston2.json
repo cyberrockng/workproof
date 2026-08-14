@@ -3,31 +3,49 @@
   "chainId": 114,
   "rpc": "https://coston2-api.flare.network/ext/C/rpc",
   "explorer": "https://coston2-explorer.flare.network",
-  "sourceCommit": "2779d77983e0f23d586b1ed56507e9a935644951",
+  "sourceCommit": "4b4358ca941bf6f64926d98425b34921f09b15e7",
   "workingTreeDirty": false,
-  "updatedAt": "2026-08-14T00:00:00+01:00",
+  "updatedAt": "2026-08-14T16:14:17+01:00",
   "deployer": "0x9D51803c7aEC6F8A67E0A578158e5f84F774EEAB",
   "contractAddresses": {
-    "WorkProofEscrow": "0x7B984320aA969Ad6522E7c902371dD208C1760A4",
-    "InstructionSender": "0x7B984320aA969Ad6522E7c902371dD208C1760A4",
+    "WorkProofEscrow": "0x2eA5bBb676AD142cFa24A20A9Fd950e81640E2dD",
+    "InstructionSender": "0x2eA5bBb676AD142cFa24A20A9Fd950e81640E2dD",
     "FlareTeeManager": "0x1a9C4A0f9D76c0b1D91d22E24E573a9b377618aE",
     "treasury": "0xDA02a4df41581756F209e73B4aD1Ab70fC1B575e"
   },
-  "contractDeploymentTxs": {
-    "note": "The current redeploy transaction hashes were not retained in tracked logs. This manifest records the verified current address plus end-to-end Coston2 evidence transaction hashes below."
+  "contractDeployment": {
+    "tx": "0xb0f71283af1ebdc8c6e0bffbe205075522f1b7e689bb6041104927c91f0851f5",
+    "blockNumber": 34055640,
+    "creationNonce": 115,
+    "constructorArgs": "0x0000000000000000000000001a9c4a0f9d76c0b1d91d22e24e573a9b377618ae000000000000000000000000da02a4df41581756f209e73b4ad1ab70fc1b575e0000000000000000000000000000000000000000000000000000000000000064",
+    "compiler": "solc 0.8.35",
+    "optimizer": true,
+    "optimizerRuns": 200,
+    "viaIR": true,
+    "evmVersion": "cancun",
+    "sourceVerification": {
+      "provider": "Sourcify",
+      "status": "exact_match",
+      "jobId": "faa71f5a-0f62-4fae-b317-befae579ffe3",
+      "url": "https://sourcify.dev/server/v2/verify/faa71f5a-0f62-4fae-b317-befae579ffe3"
+    }
   },
   "resolvedFTestXRP": "0x0b6A3645c240605887a5532109323A3E12273dc7",
   "protocolFeeBps": 100,
-  "extensionId": "0x00000000000000000000000000000000000000000000000000000000000102af",
-  "extensionIdDecimal": 66223,
+  "extensionId": "0x00000000000000000000000000000000000000000000000000000000000102ea",
+  "extensionIdDecimal": 66282,
   "registryVerification": {
     "teeMachineStatus": 2,
     "teeMachine": {
-      "teeId": "0x962cf74e9673170f273576764c60dF2fc13A28aa",
+      "teeId": "0x04635178b552b00d363557e1296aC71a7241eE87",
       "owner": "0x9D51803c7aEC6F8A67E0A578158e5f84F774EEAB",
       "url": "https://retention-pasta-clip.ngrok-free.dev"
     },
-    "getTeeMachineStatusCommand": "cast call 0x1a9C4A0f9D76c0b1D91d22E24E573a9b377618aE \"getTeeMachineStatus(address)(uint8)\" 0x962cf74e9673170f273576764c60dF2fc13A28aa --rpc-url https://coston2-api.flare.network/ext/C/rpc"
+    "getTeeMachineStatusCommand": "cast call 0x1a9C4A0f9D76c0b1D91d22E24E573a9b377618aE \"getTeeMachineStatus(address)(uint8)\" 0x04635178b552b00d363557e1296aC71a7241eE87 --rpc-url https://coston2-api.flare.network/ext/C/rpc",
+    "staleMachinePaused": {
+      "teeId": "0x242eEB8ddEA1A07Cc1A2257Be0e18EEd784dAaf3",
+      "tx": "0x60778c16151d1c9e1b71cf2cc84635b39dc306a4a99b48372569e16a3c50661b"
+    }
   },
   "phase5ServiceStatus": {
     "preBuild": "passed",
@@ -38,10 +56,10 @@
     "stableTunnelUrl": "https://retention-pasta-clip.ngrok-free.dev",
     "extensionProxyInfo": {
       "status": "live",
-      "checkedAt": "2026-08-14T00:00:00+01:00",
+      "checkedAt": "2026-08-14T16:14:17+01:00",
       "publicInfoUrl": "https://retention-pasta-clip.ngrok-free.dev/info",
       "localGatewayUrl": "http://127.0.0.1:7790/info",
-      "extensionIdInInfo": "0x00000000000000000000000000000000000000000000000000000000000102af",
+      "extensionIdInInfo": "0x00000000000000000000000000000000000000000000000000000000000102ea",
       "chainId": 114,
       "attestation": "magic_pass",
       "attestationMode": "simulated",
@@ -49,15 +67,18 @@
       "platformHex": "0x544553545f504c4154464f524d00000000000000000000000000000000000000",
       "codeHash": "0x194844cf417dde867073e5ab7199fa4d21fd82b5dbe2bdea8b3d7fc18d10fdc2",
       "governanceHash": "0xec29826578cec3cf256b8254484fa7faa3609dd00991a6c3628885c5d93a1b7d",
-      "initialSigningPolicyId": 5936,
-      "lastSigningPolicyId": 5938,
-      "teeId": "0x962cf74e9673170f273576764c60dF2fc13A28aa",
-      "publicKeyX": "0x14e7bda8b56d9b6450a82040e99ac0b0d04ec5588a238aca4d89c35ca25df173",
-      "publicKeyY": "0xeb5ad1232e2937d0d4149b329f993290006e2674c307ba40875a904a7b15f1d7"
+      "initialSigningPolicyId": 5939,
+      "lastSigningPolicyId": 5939,
+      "teeId": "0x04635178b552b00d363557e1296aC71a7241eE87",
+      "publicKeyX": "0x98662c66a92e2797f1e583cee1c0c2a75221617b32624ae295037dc7dd442a10",
+      "publicKeyY": "0x49961e689a520c7ae86320f9cd0f6601a32ed4ac99118456019d40286f65570a"
     },
     "fccRegistrationEvidence": {
-      "teeAttestationInstructionId": "0x0245b8297624b0bd0d5df372918535f4d9909785eb0b36cf0be0044b39fcc90b",
-      "availabilityInstructionId": "0x47c909e7b96829fb6b47bcf42768c9a2c1a5845fa1b580ba3793b91c2e40436c",
+      "teeAttestationInstructionIds": [
+        "0x1acbcaff4dc67eacade21359ccdde851fe1faab9a012af3a7df28824e6677f18",
+        "0x0e6f87cdd9a944e57ee6289da35fdd3b6b4772c71963d7de32d0d4d96a47f930"
+      ],
+      "availabilityInstructionId": "0x691a17cad8068642315e4a9b38ee8c917dcb857f7e580af246a56a8edeb0cbd5",
       "availabilityResult": "proof obtained; machine promoted to registry status 2",
       "normalProxies": [
         "https://tee-proxy-coston2-1.flare.rocks",
@@ -68,27 +89,32 @@
       "rootCause": "The WorkProof gateway did not forward provider POST /instruction traffic to ext-proxy, so providers received a gateway 404.",
       "fix": "Forward /instruction in go/cmd/workproof-gateway and run ext-proxy on tee-proxy v0.0.22."
     },
+    "ciphertextGatewayFix": {
+      "rootCause": "WORKPROOF_CIPHERTEXT_HOSTS was missing from the local .env used by Docker, causing an inconclusive result when the verifier could not fetch ciphertext.",
+      "fix": "Set WORKPROOF_CIPHERTEXT_HOSTS=retention-pasta-clip.ngrok-free.dev in the gitignored runtime environment and recreated extension-tee plus ext-proxy/Redis."
+    },
     "limitations": [
       "Simulated TEE attestation only; no GCP AMD SEV hardware attestation is claimed.",
-      "No polished deployed web UI is included in this repository."
+      "The fresh evidence run used the available deployer key as runner for client/contractor/settlement transactions because separate role private keys are not present locally."
     ]
   },
   "phase5Evidence": {
     "passPay": {
-      "jobId": 2,
+      "jobId": 1,
       "state": "Paid",
       "stateCode": 7,
       "settled": true,
-      "approveTx": "0xcffb55d997f556d2aecf7e8077a6318f9a466951c2fd8d7f90598a531c1fe254",
-      "createJobTx": "0xadbf8cdf5dfd182e22470877f8a2a503819dd80e17ac659d8b5961ed1bee8dd2",
-      "acceptJobTx": "0x311e2698ed79168e2b2da05fd313f526c8a0d05c53f5f2ee3e5f25ad4eb633ea",
-      "submitAttemptTx": "0x080712fe1fc60ea7a9aa84ab2c0d13f5c78cbd362850fd8ad2aaababda54b2b0",
-      "lockRandomnessTx": "0x23e88d252af74065a0713611c75d6500b070edf957a7d079bafb330a11259cad",
-      "dispatchVerificationTx": "0x98aebb57c7ba0d37b079f83d646b31e12e15d3951117c14dfe75867bc5f83429",
-      "settleAttemptTx": "0xcddf06c7a85973f32363cafc8989c17949062413ae789ec59e320e17d206b556",
-      "instructionId": "0x54e4edc9290ff939413b54f90d991812e6771f669a8441d12f1610aaeb14a0d4",
-      "randomRound": 1425237,
-      "expectedTee": "0x962cf74e9673170f273576764c60dF2fc13A28aa",
+      "approveTx": "0x0f0584af3f7a7da97b3562c69b201edee43c837c0e53a65ad9544985124a83bd",
+      "createJobTx": "0x828f0065a24adb77c15efb1bc7fb98cf59b927bf2b0a09017b4238b377bb09de",
+      "acceptJobTx": "0x0ca114ad6f3d9b52dfbe063babfffc327251ee02844bf120044042b31893dc6a",
+      "submitAttemptTx": "0x09f1420a5c495ec1135e9bda814f11597ef8cd29775d9883f0ee24248d848b6b",
+      "lockRandomnessTx": "0xf8ed82a3b5e5fbc6fe26c97f63c9f390028f4916e976f3516a84c3080e6c5896",
+      "dispatchVerificationTx": "0x5bd6a5193047e534125f09713f94698146372237a40f42314555e29c81231b69",
+      "settleAttemptTx": "0xe03f1262d6c2d11b7d924fde3ad0547012e6088f98ec377a66675fe29305ece7",
+      "instructionId": "0x0495b7efb23b3993f9e67d045922ccd5c08f36ca7e05a9eaf3ea4e9d7c102cd1",
+      "randomRound": 1425437,
+      "expectedTee": "0x04635178b552b00d363557e1296aC71a7241eE87",
+      "ciphertextPath": "/tmp/workproof-ciphertexts/d2fb1e2f30706b25c76343149d22ebc9f8486ea0a657acf65a11ccf27c279a1b",
       "actionResult": {
         "submissionTag": "threshold",
         "status": 1,
@@ -97,20 +123,21 @@
       }
     },
     "failNoPay": {
-      "jobId": 3,
+      "jobId": 2,
       "state": "AwaitingResubmission",
       "stateCode": 5,
       "settled": false,
-      "approveTx": "0xe73a0694dbee876303a08f273714f813ad505020a09998e0aae51ef49034bd0e",
-      "createJobTx": "0xc5cdbd703c63c8e6313b43e8bfb5eb0677f85abbd128ef9a74a76861ef3c800c",
-      "acceptJobTx": "0xffb3e6bbf3b2ef0e341c655f9a5a5317f193fd60e66c9fda3d705844bfbf7327",
-      "submitAttemptTx": "0x1bf15c069ef4f386293d394de6f9193e6b989c9ffeaf68fbfe0b21ed9173e1b6",
-      "lockRandomnessTx": "0xe54c09ad2bd4e534914157e67af26695e226585ca642eb80809e33ffbc42db26",
-      "dispatchVerificationTx": "0x49db6e87ccd4787224e4e6aaa62b8d718f587c08d223688507515d85f0f138f6",
-      "settleAttemptTx": "0x649d527226d0949e04b112d6c4d55e9854bb39b645147d1b1b1d4ce1be1092de",
-      "instructionId": "0xd50472e92318748d4a3e111834d95df31eae5ebb0125ffad7527ac3a204047de",
-      "randomRound": 1425251,
-      "expectedTee": "0x962cf74e9673170f273576764c60dF2fc13A28aa",
+      "approveTx": "0x9901bb9055b13287987a879c1052cff87d34252b699e0ef3299f81155c573075",
+      "createJobTx": "0x2708ef34c65404afef42dc6bdfd009f7abb1ff9c66e7abafb90e0000db83a2f9",
+      "acceptJobTx": "0xa3eb61cbb22b51842b3c40cda8540bf035d10a24a19979bbf65bcc53d6e16238",
+      "submitAttemptTx": "0xecf3996268a0cf3554a6c1fa49c2a75506e2d8c7e8c10279384224d499b80b1f",
+      "lockRandomnessTx": "0x470934dc7812572a4650b007ed65bd9945790dda97c26956496911453e03cb24",
+      "dispatchVerificationTx": "0xdbf74dff0b74be81663f84d9b1b8549eebbe4a362c589c335a59190bea134e69",
+      "settleAttemptTx": "0x773c68ec74311c7081f12b656ab7fb4764206fb8fdc51aa7415c4a29e641c726",
+      "instructionId": "0x50b7e3f06ec666719c21ffea3de1d9c6a3cdb3939acf17fb6cdd0dfda6685e42",
+      "randomRound": 1425440,
+      "expectedTee": "0x04635178b552b00d363557e1296aC71a7241eE87",
+      "ciphertextPath": "/tmp/workproof-ciphertexts/4915dd6282b968554770dab07a920f6c70267b308310ab58cce5b0db09b2d788",
       "actionResult": {
         "submissionTag": "threshold",
         "status": 1,
@@ -119,20 +146,31 @@
       }
     },
     "refund": {
-      "jobId": 4,
+      "jobId": 3,
       "state": "Refunded",
       "stateCode": 9,
       "settled": true,
-      "approveTx": "0x09a64cfea68404becf84696b94623d8774c5324383a354e2dc23afe6b93a2da3",
-      "createJobTx": "0xac005d5026a3ec5f2d51985299f41fc100ecc51516d8fd05caef3b186228574e",
-      "refundExpiredTx": "0xca8d403aeec99d37ec372c26314be0843aadd0a4e78ad19e775181d2f299f53a",
+      "approveTx": "0x94cf0357e86df3b7e59d4f45dc55d6cc78cf5d9c6bd11a4a4f32d4bb8da8f4da",
+      "createJobTx": "0xce1ac2e826bfe18b01ea29123f6b79e985f4c901fb17113e629271e15eaeaf0a",
+      "refundExpiredTx": "0xa461ff44d918c0d23a28f4271ec7803948a8c2b129d42ea8777a585f8b2963df",
       "refundDelta": "1010",
+      "ciphertextPath": "/tmp/workproof-ciphertexts/72251ab82c403e08a38b728942b73c60df92e9b77b2cd1d38310706c5ea50369",
       "deadlines": {
-        "acceptBy": 1786702897,
-        "submitBy": 1786702927,
-        "graceEnds": 1786702957,
-        "verificationTimeoutSeconds": 120
+        "acceptBy": 1786719806,
+        "submitBy": 1786719826,
+        "graceEnds": 1786719856,
+        "verificationTimeoutSeconds": 30
       }
     }
+  },
+  "roleSeparationEvidence": {
+    "status": "blocked",
+    "reason": "The local gitignored environment only contains DEPLOYMENT_PRIVATE_KEY and PROXY_PRIVATE_KEY. No separate client, contractor, or relayer private keys are available locally.",
+    "currentRun": "single-operator/deployer-runner evidence only",
+    "requiredToClose": [
+      "Client private key for approve/createJob/refund",
+      "Contractor private key for acceptJob/submitAttempt",
+      "Relayer private key for settleAttempt"
+    ]
   }
 }

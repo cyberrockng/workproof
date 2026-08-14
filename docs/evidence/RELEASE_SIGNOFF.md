@@ -33,7 +33,9 @@ Scope: Flare Summer Signal hackathon submission evidence
 - `./scripts/check-versions.sh`
 - `cd go && go test ./cmd/workproof-gateway ./cmd/workproof-phase5`
 - `cd tools && go test ./...`
-- `forge test --match-contract WorkProofEscrowTest` (`85/85` passed)
+- `forge test --match-contract WorkProofEscrowTest` (`89/89` passed)
+- `cd relayer && npm test` (`8/8` passed)
+- `bash ./scripts/check-evidence-commits.sh`
 
 ## Limitations
 
@@ -44,6 +46,10 @@ Scope: Flare Summer Signal hackathon submission evidence
 - DoraHacks upload, final video publication, and account-level submission
   receipt are outside the repository and must be completed through the user's
   browser/account.
+- The Coston2 demo evidence was produced at public commit
+  `2779d77983e0f23d586b1ed56507e9a935644951`. Later audit-remediation
+  commits improve source safety/tooling and require a fresh redeploy if those
+  exact bytecode changes are to be claimed on-chain.
 
 ## Decision
 

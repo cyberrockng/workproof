@@ -1085,6 +1085,57 @@ contract WorkProofEscrowTest is Test {
         _settleWith(id, v, TEE_KEY);
     }
 
+    function testMutationRejected_zeroExecutedCount() external {
+        uint256 id = _createJob(100e6);
+        _fullyDispatch(id);
+        WorkProofEscrow.VerdictV1 memory v = _matchingVerdict(id, WorkProofEscrow.Outcome.Pass);
+        v.result.passedCount = 0;
+        v.result.executedCount = 0;
+        vm.expectRevert(WorkProofEscrow.InvalidVerdict.selector);
+        _settleWith(id, v, TEE_KEY);
+    }
+
+    function testMutationRejected_passedCountAboveExecutedCount() external {
+        uint256 id = _createJob(100e6);
+        _fullyDispatch(id);
+        WorkProofEscrow.VerdictV1 memory v = _matchingVerdict(id, WorkProofEscrow.Outcome.Fail);
+        v.result.passedCount = 6;
+        v.result.executedCount = 5;
+        vm.expectRevert(WorkProofEscrow.InvalidVerdict.selector);
+        _settleWith(id, v, TEE_KEY);
+    }
+
+    function testMutationRejected_passOutcomeWithPartialCounts() external {
+        uint256 id = _createJob(100e6);
+        _fullyDispatch(id);
+        WorkProofEscrow.VerdictV1 memory v = _matchingVerdict(id, WorkProofEscrow.Outcome.Pass);
+        v.result.passedCount = 4;
+        v.result.executedCount = 5;
+        vm.expectRevert(WorkProofEscrow.InvalidVerdict.selector);
+        _settleWith(id, v, TEE_KEY);
+    }
+
+    function testMutationRejected_nonPassOutcomeWithAllPassedCounts() external {
+        uint256 id = _createJob(100e6);
+        _fullyDispatch(id);
+        WorkProofEscrow.VerdictV1 memory v = _matchingVerdict(id, WorkProofEscrow.Outcome.Fail);
+        v.result.passedCount = 5;
+        v.result.executedCount = 5;
+        vm.expectRevert(WorkProofEscrow.InvalidVerdict.selector);
+        _settleWith(id, v, TEE_KEY);
+
+        // Repeat on a fresh job because the first revert leaves the original
+        // job in Verifying but this keeps the outcome branch under test
+        // unambiguous.
+        uint256 id2 = _createJob(100e6);
+        _fullyDispatch(id2);
+        v = _matchingVerdict(id2, WorkProofEscrow.Outcome.Inconclusive);
+        v.result.passedCount = 5;
+        v.result.executedCount = 5;
+        vm.expectRevert(WorkProofEscrow.InvalidVerdict.selector);
+        _settleWith(id2, v, TEE_KEY);
+    }
+
     function testMutationRejected_expiresAtNotEqualGraceEnds() external {
         uint256 id = _createJob(100e6);
         _fullyDispatch(id);

@@ -16,6 +16,7 @@ export const COSTON2_CHAIN = {
 
 export const OP_TYPE = asciiToBytes32("WORKPROOF");
 export const OP_COMMAND = asciiToBytes32("VERIFY");
+export const WORKPROOF_SUBMISSION_TAG = "threshold";
 export const SETTLE_SIGNATURE = "settleAttempt(uint256,bytes,bytes32,bytes32,string,uint8,bytes)";
 export const EXPIRE_SIGNATURE = "expireVerification(uint256)";
 export const REFUND_SIGNATURE = "refundExpired(uint256)";
@@ -77,7 +78,9 @@ export function validateActionResponse(body, { instructionId, expectedTee } = {}
   if (!BYTES32_RE.test(result.id ?? "")) throw new Error("result.id must be bytes32 hex");
   if (expectedId && result.id.toLowerCase() !== expectedId) throw new Error("result.id does not match instruction");
   if (expectedTee && !ADDRESS_RE.test(expectedTee)) throw new Error("expected TEE must be an address");
-  if (result.submissionTag !== "submit") throw new Error("result.submissionTag must be submit");
+  if (result.submissionTag !== WORKPROOF_SUBMISSION_TAG) {
+    throw new Error(`result.submissionTag must be ${WORKPROOF_SUBMISSION_TAG}`);
+  }
   if (result.status !== 1) throw new Error(`result.status ${result.status} cannot settle`);
   if ((result.opType ?? "").toLowerCase() !== OP_TYPE.toLowerCase()) throw new Error("result.opType is not WORKPROOF");
   if ((result.opCommand ?? "").toLowerCase() !== OP_COMMAND.toLowerCase()) {

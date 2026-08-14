@@ -6,7 +6,7 @@
     "rpc": "https://coston2-api.flare.network/ext/C/rpc",
     "explorer": "https://coston2-explorer.flare.network"
   },
-  "sourceCommit": "da764f9f9fcb7f25bbd1840c5be65af2af665317",
+  "sourceCommit": "2779d77983e0f23d586b1ed56507e9a935644951",
   "workproof": {
     "escrow": "0x7B984320aA969Ad6522E7c902371dD208C1760A4",
     "instructionSender": "0x7B984320aA969Ad6522E7c902371dD208C1760A4",

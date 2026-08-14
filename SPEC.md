@@ -157,4 +157,9 @@ The FCC extension ABI-encodes `VerdictV1` into signed `ActionResult.data`. Every
 - issued at;
 - expires at.
 
+The escrow rejects semantically inconsistent counts: at least one vector must be
+represented, `passedCount` cannot exceed `executedCount`, PASS requires
+`passedCount == executedCount`, and FAIL/INCONCLUSIVE require
+`passedCount < executedCount`.
+
 The public report exposes vector IDs, statuses, timing, and redacted diagnostics. It must not expose hidden inputs or expected outputs.

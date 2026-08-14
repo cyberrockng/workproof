@@ -3,7 +3,7 @@
   "chainId": 114,
   "rpc": "https://coston2-api.flare.network/ext/C/rpc",
   "explorer": "https://coston2-explorer.flare.network",
-  "sourceCommit": "da764f9f9fcb7f25bbd1840c5be65af2af665317",
+  "sourceCommit": "2779d77983e0f23d586b1ed56507e9a935644951",
   "workingTreeDirty": false,
   "updatedAt": "2026-08-14T00:00:00+01:00",
   "deployer": "0x9D51803c7aEC6F8A67E0A578158e5f84F774EEAB",

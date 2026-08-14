@@ -8,4 +8,5 @@ Expected files during execution:
 - `deployment-manifest.example.json`: manifest shape before live Coston2 values exist.
 - `demo-evidence.example.json`: manifest shape for FAIL, PASS, and REFUND flows.
 - `demo-run.json`: live Coston2 Phase 5 PASS/pay, FAIL/no-pay, and refund evidence.
+- `AUDIT_RESPONSE.md`: response to the 2026-08-14 unbiased audit findings.
 - `RELEASE_SIGNOFF.md`: final release sign-off after all P0 gates pass or the remaining limitations are explicitly accepted.

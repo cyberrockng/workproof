@@ -96,7 +96,7 @@ log "Addresses file: $ADDRESSES_FILE"
 # Must run before the pre-flight check: the tools module imports the generated
 # bindings, so on a fresh clone nothing in tools/ compiles until they exist.
 step 0 "Generate Go bindings"
-"$SCRIPT_DIR/generate-workproof-tools-bindings.sh" || die "Binding generation failed"
+bash "$SCRIPT_DIR/generate-workproof-tools-bindings.sh" || die "Binding generation failed"
 
 # --- Step 1: Pre-flight check ---
 step 1 "Pre-flight check"

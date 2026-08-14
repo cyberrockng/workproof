@@ -679,6 +679,9 @@ contract WorkProofEscrow is ReentrancyGuard {
         }
         if (vo.engineVersionHash != j.terms.engineVersionHash) revert InvalidVerdict();
         if (vo.reportHash == bytes32(0)) revert InvalidVerdict();
+        if (vo.executedCount == 0 || vo.passedCount > vo.executedCount) revert InvalidVerdict();
+        if (vo.outcome == Outcome.Pass && vo.passedCount != vo.executedCount) revert InvalidVerdict();
+        if (vo.outcome != Outcome.Pass && vo.passedCount == vo.executedCount) revert InvalidVerdict();
         if (vo.expiresAt != j.terms.graceEnds) revert InvalidVerdict();
         if (vo.issuedAt > block.timestamp || vo.issuedAt < j.current.dispatchedAt) revert InvalidVerdict();
     }

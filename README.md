@@ -2,7 +2,7 @@
 
 A pre-funded escrow for objective smart-contract deliverables, settled automatically by [Flare Confidential Compute](https://dev.flare.network/fassets/guides/fcc) (FCC).
 
-A client locks principal plus a success fee. A contractor deploys a Coston2 contract as their submission. A Go extension running inside an FCC TEE independently re-derives the job's randomness, selects a subset of the client's hidden test vectors, executes them against the deployed artifact over `eth_call`/`eth_getCode`/`eth_getStorageAt`, and returns a signed verdict. The escrow verifies that signature came from the TEE it pinned at job creation, checks every field of the verdict against on-chain state, and pays principal + fee to the contractor on PASS — or lets the client refund after the grace deadline. No admin ever touches the funds.
+A client locks principal plus a success fee. A contractor deploys a Coston2 contract as their submission. A Go extension running inside an FCC TEE independently re-derives the job's randomness, selects a subset of the client's hidden test vectors, executes them against the deployed artifact over `eth_call`/`eth_getCode`/`eth_getStorageAt`, and returns a signed verdict. The escrow verifies that signature came from the TEE it pinned at job creation, checks every field of the verdict against on-chain state, and on PASS pays principal to the contractor and the success fee to the treasury — or lets the client refund after the grace deadline. No admin ever touches the funds.
 
 Built for the Flare Summer Signal hackathon on the [official FCC extension scaffold](https://github.com/flare-foundation/fce-extension-scaffold) (Go implementation only — WorkProof does not use the scaffold's Python/TypeScript paths).
 
@@ -12,9 +12,9 @@ Built for the Flare Summer Signal hackathon on the [official FCC extension scaff
 - **An independent audit (2026-08-09)** found four release-blocking defects and five high-severity gaps. Every finding checked against source was accurate. All nine are fixed, each with a real regression test — several confirmed load-bearing by temporarily reverting the fix and watching the test fail. Full account in [`NEW_WORK.md`](NEW_WORK.md) under "Post-audit remediation"; the corrected evidence docs are [`docs/evidence/phase3-production-contracts.md`](docs/evidence/phase3-production-contracts.md) and [`docs/evidence/phase4-go-verifier.md`](docs/evidence/phase4-go-verifier.md).
 - **Phase 5 (Coston2 simulated-attestation integration test)** is complete on the current live Coston2 FCC deployment: extension `66223`, escrow/instruction sender `0x7B984320aA969Ad6522E7c902371dD208C1760A4`, proxy `https://retention-pasta-clip.ngrok-free.dev`, TEE `0x962cf74e9673170f273576764c60dF2fc13A28aa`, registry status `2`, and successful PASS/pay, FAIL/no-pay, and refund paths. Evidence is in [`deployments/coston2.json`](deployments/coston2.json) and [`docs/evidence/demo-run.json`](docs/evidence/demo-run.json).
 - **Simulation honesty**: this hackathon deployment uses `SIMULATED_TEE=true`/`MODE=1` with attestation `magic_pass` and platform `TEST_PLATFORM`. Flare organizers confirmed simulated TEEs are acceptable for the hackathon demo; this is not claimed as GCP AMD SEV hardware attestation.
-- **Not yet built**: a polished web UI and 0 Foundry invariant functions (2 fuzz tests exist). Stated plainly rather than implied otherwise.
+- **Not yet built**: a polished deployed web UI. Three Foundry invariant functions and two fuzz tests exist. Stated plainly rather than implied otherwise.
 
-Last verified checks: `./scripts/check-versions.sh`; `cd go && go test ./cmd/workproof-gateway ./cmd/workproof-phase5`; `cd tools && go test ./...`; `forge test --match-contract WorkProofEscrowTest` (**85/85** local escrow tests).
+Last verified checks: `./scripts/check-versions.sh`; `bash ./scripts/check-evidence-commits.sh`; `cd go && go test ./...`; `cd tools && go test ./...`; `cd relayer && npm test`; `forge test --match-contract WorkProofEscrowTest` (**89/89** local escrow tests).
 
 ## Architecture
 
@@ -44,7 +44,7 @@ Go FCC extension (go/internal/verifier) inside the TEE:
 escrow.settleAttempt(verdict, signature) ──verifies signer == pinned TEE,
        │                                    checks every VerdictV1 field
        ▼
-  PASS → principal + fee to contractor · FAIL → contractor may resubmit
+  PASS → principal to contractor + fee to treasury · FAIL → contractor may resubmit
   · past graceEnds → client may refund instead, regardless of outcome
 ```
 
@@ -83,6 +83,10 @@ The escrow is itself the FCC instruction sender — it calls `TeeExtensionRegist
 ## Building and testing
 
 ```bash
+# One-time dependency bootstrap for a fresh clone.
+forge soldeer install
+(cd lib/flare-foundry-periphery-package && forge soldeer install)
+
 # Solidity: local + spike suites (no network needed)
 forge test --match-contract "WorkProofEscrowTest|FccSignatureSpikeTest"
 
@@ -98,6 +102,9 @@ cd go && go build ./... && gofmt -l . && go vet ./... && go test ./... -race -co
 
 # Wire-contract conformance (starts the extension, no chain/Docker needed)
 ./scripts/test-conformance.sh go
+
+# Evidence provenance: each recorded sourceCommit must be in git history.
+bash ./scripts/check-evidence-commits.sh
 ```
 
 Deploying to Coston2 (`./scripts/pre-build.sh`) needs `DEPLOYMENT_PRIVATE_KEY` (funded) and `WORKPROOF_TREASURY` set. The current live hackathon deployment is recorded in [`deployments/coston2.json`](deployments/coston2.json); operational caveats and remaining non-code items are tracked in [`docs/operations/external-dependencies.md`](docs/operations/external-dependencies.md).

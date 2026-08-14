@@ -252,6 +252,8 @@ func (v *Verifier) inconclusiveVerdict(instr types.WorkProofInstruction, identit
 			RandomValueHash:   instr.RandomValueHash,
 			EngineVersionHash: realEngineVersionHash,
 			Outcome:           uint8(types.OutcomeInconclusive),
+			PassedCount:       0,
+			ExecutedCount:     1,
 			ReportHash:        reportHash,
 			IssuedAt:          uint64(time.Now().Unix()),
 			ExpiresAt:         instr.ExpiresAt,

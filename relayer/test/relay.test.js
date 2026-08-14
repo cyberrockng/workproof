@@ -4,6 +4,7 @@ import {
   OP_COMMAND,
   OP_TYPE,
   PendingResultError,
+  WORKPROOF_SUBMISSION_TAG,
   buildSettleArgs,
   castArgsForCall,
   fetchActionResponse,
@@ -22,7 +23,7 @@ function response(overrides = {}) {
   return {
     result: {
       id: INSTRUCTION,
-      submissionTag: "submit",
+      submissionTag: WORKPROOF_SUBMISSION_TAG,
       status: 1,
       log: "ok",
       opType: OP_TYPE,
@@ -88,7 +89,14 @@ test("wrong proxy signature is ignored; TEE signature remains settlement authori
 
 test("settleAttempt args preserve FCC routing and signature fields", () => {
   const action = validateActionResponse(response(), { instructionId: INSTRUCTION });
-  assert.deepEqual(buildSettleArgs(7n, action), [7n, DATA, OP_TYPE, OP_COMMAND, "submit", 1, SIGNATURE]);
+  assert.deepEqual(buildSettleArgs(7n, action), [7n, DATA, OP_TYPE, OP_COMMAND, WORKPROOF_SUBMISSION_TAG, 1, SIGNATURE]);
+});
+
+test("WorkProof relayer rejects the scaffold submit tag", () => {
+  assert.throws(
+    () => validateActionResponse(response({ result: { submissionTag: "submit" } }), { instructionId: INSTRUCTION }),
+    /submissionTag/
+  );
 });
 
 test("cast args support dry-run simulation and signed sends", () => {

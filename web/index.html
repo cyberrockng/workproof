@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WorkProof Evidence Dashboard</title>
+    <link rel="stylesheet" href="/web/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <img src="/assets/workproof-logo.png" alt="WorkProof" />
+        <div>
+          <strong>WorkProof</strong>
+          <span>Coston2 FCC evidence dashboard</span>
+        </div>
+      </div>
+      <a class="repo" href="https://github.com/cyberrockng/workproof">GitHub</a>
+    </header>
+
+    <main>
+      <section class="summary">
+        <div>
+          <p class="eyebrow">Live hackathon deployment</p>
+          <h1>Objective smart-contract work, paid only after TEE verification.</h1>
+          <p class="lead">
+            Client funds are locked on Coston2. The WorkProof FCC extension tests
+            the submitted contract and signs a verdict. PASS pays, FAIL keeps funds
+            locked for resubmission, and expiry refunds the client.
+          </p>
+        </div>
+        <div class="status-panel">
+          <div>
+            <span>Extension</span>
+            <strong>66223</strong>
+          </div>
+          <div>
+            <span>TEE Status</span>
+            <strong>2</strong>
+          </div>
+          <div>
+            <span>Network</span>
+            <strong>Coston2</strong>
+          </div>
+          <div>
+            <span>Attestation</span>
+            <strong>Simulated</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid">
+        <article class="panel wide">
+          <h2>Current Deployment</h2>
+          <dl class="facts">
+            <div>
+              <dt>Escrow</dt>
+              <dd>0x7B984320aA969Ad6522E7c902371dD208C1760A4</dd>
+            </div>
+            <div>
+              <dt>TEE</dt>
+              <dd>0x962cf74e9673170f273576764c60dF2fc13A28aa</dd>
+            </div>
+            <div>
+              <dt>Proxy</dt>
+              <dd>https://retention-pasta-clip.ngrok-free.dev</dd>
+            </div>
+            <div>
+              <dt>Code hash</dt>
+              <dd>0x194844cf417dde867073e5ab7199fa4d21fd82b5dbe2bdea8b3d7fc18d10fdc2</dd>
+            </div>
+          </dl>
+        </article>
+
+        <article class="panel">
+          <h2>PASS Pays</h2>
+          <p class="state paid">Job 2 · Paid</p>
+          <p>TEE verdict settled on-chain and released principal plus fee.</p>
+          <code>0xcddf06c7a85973f32363cafc8989c17949062413ae789ec59e320e17d206b556</code>
+        </article>
+
+        <article class="panel">
+          <h2>FAIL Does Not Pay</h2>
+          <p class="state waiting">Job 3 · AwaitingResubmission</p>
+          <p>Failing artifact settled with no contractor payment.</p>
+          <code>0x649d527226d0949e04b112d6c4d55e9854bb39b645147d1b1b1d4ce1be1092de</code>
+        </article>
+
+        <article class="panel">
+          <h2>Refund Works</h2>
+          <p class="state refunded">Job 4 · Refunded</p>
+          <p>Expired job returned locked funds to the client.</p>
+          <code>0xca8d403aeec99d37ec372c26314be0843aadd0a4e78ad19e775181d2f299f53a</code>
+        </article>
+
+        <article class="panel">
+          <h2>Verification</h2>
+          <ul>
+            <li>Version pins consistent</li>
+            <li>Go Phase 5 helpers pass</li>
+            <li>Tools module tests pass</li>
+            <li>Foundry escrow tests: 85/85</li>
+          </ul>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>
